@@ -20,6 +20,7 @@
   overlays = import ./overlays; # nixpkgs overlays
 
   example-package = pkgs.callPackage ./pkgs/example-package { };
+  tree-sitter-rcsh = pkgs.callPackage ./pkgs/tree-sitter-rcsh { };
   # some-qt5-package = pkgs.libsForQt5.callPackage ./pkgs/some-qt5-package { };
   # ...
 }
