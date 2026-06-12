@@ -10,8 +10,8 @@ tree-sitter.buildGrammar {
   src = fetchFromGitHub {
     owner = "chiefnoah";
     repo = "tree-sitter-rcsh";
-    rev = "cff832d7d7a72b7fa186f6a6f531ab21908ba5ce";
-    hash = "sha256-d1FCNpP1mJHbWa20an91JbRW7MIXdX3D0bCJhT3wLVc=";
+    rev = "a803e59a56eb88f6240bc208b6de8c13c5da6d5b";
+    hash = "sha256-7hr7S72Fcvzq5D9htuawE3YYY1spCkVyP/5zftCXTJQ=";
   };
 
   meta = {
