@@ -30,6 +30,7 @@ stdenvNoCC.mkDerivation {
     description = "Windows 98/2000-inspired icon theme for KDE Plasma";
     homepage = "https://github.com/Stanton731/Memphis98";
     # Upstream does not publish an explicit license.
+    license = lib.licenses.unfree;
     platforms = lib.platforms.linux;
   };
 }
