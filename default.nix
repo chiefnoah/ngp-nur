@@ -26,6 +26,7 @@
   memphis98-icon-theme = pkgs.callPackage ./pkgs/memphis98-icon-theme { };
   retro-5-classic98-openbox-theme = pkgs.callPackage ./pkgs/retro-5-classic98-openbox-theme { };
   windows-classic-theme = pkgs.callPackage ./pkgs/windows-classic-theme { };
+  windows98-lxqt-theme = pkgs.callPackage ./pkgs/windows98-lxqt-theme { };
   rcsh-language-server = pkgs.callPackage ./pkgs/rcsh-language-server { };
   tree-sitter-rcsh = pkgs.callPackage ./pkgs/tree-sitter-rcsh { };
   # some-qt5-package = pkgs.libsForQt5.callPackage ./pkgs/some-qt5-package { };
