@@ -24,6 +24,7 @@
   example-package = pkgs.callPackage ./pkgs/example-package { };
   chicago95-theme = pkgs.callPackage ./pkgs/chicago95-theme { };
   memphis98-icon-theme = pkgs.callPackage ./pkgs/memphis98-icon-theme { };
+  retro-5-classic98-openbox-theme = pkgs.callPackage ./pkgs/retro-5-classic98-openbox-theme { };
   windows-classic-theme = pkgs.callPackage ./pkgs/windows-classic-theme { };
   rcsh-language-server = pkgs.callPackage ./pkgs/rcsh-language-server { };
   tree-sitter-rcsh = pkgs.callPackage ./pkgs/tree-sitter-rcsh { };
