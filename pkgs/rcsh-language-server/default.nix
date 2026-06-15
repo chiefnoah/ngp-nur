@@ -59,6 +59,13 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     homepage = "https://github.com/chiefnoah/rcsh-language-server";
     license = lib.licenses.mit;
     mainProgram = "rcsh-language-server";
-    maintainers = with lib.maintainers; [ ];
+    maintainers = [
+      {
+        email = "noah@packetlost.dev";
+        github = "chiefnoah";
+        githubId = 3588683;
+        name = "Noah Pederson";
+      }
+    ];
   };
 })

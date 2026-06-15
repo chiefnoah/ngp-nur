@@ -18,6 +18,13 @@ tree-sitter.buildGrammar {
     description = "Tree-sitter grammar for the Plan 9 rc shell";
     homepage = "https://github.com/chiefnoah/tree-sitter-rcsh";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ ];
+    maintainers = [
+      {
+        email = "noah@packetlost.dev";
+        github = "chiefnoah";
+        githubId = 3588683;
+        name = "Noah Pederson";
+      }
+    ];
   };
 }
