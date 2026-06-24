@@ -26,6 +26,7 @@
   retro-5-classic98-openbox-theme = pkgs.callPackage ./pkgs/retro-5-classic98-openbox-theme { };
   windows-classic-theme = pkgs.callPackage ./pkgs/windows-classic-theme { };
   windows98-lxqt-theme = pkgs.callPackage ./pkgs/windows98-lxqt-theme { };
+  nixpkgs-search = pkgs.callPackage ./pkgs/nixpkgs-search { };
   rcsh-language-server = pkgs.callPackage ./pkgs/rcsh-language-server { };
   tree-sitter-rcsh = pkgs.callPackage ./pkgs/tree-sitter-rcsh { };
 }
