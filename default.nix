@@ -27,6 +27,7 @@
   windows-classic-theme = pkgs.callPackage ./pkgs/windows-classic-theme { };
   windows98-lxqt-theme = pkgs.callPackage ./pkgs/windows98-lxqt-theme { };
   nixpkgs-search = pkgs.callPackage ./pkgs/nixpkgs-search { };
+  opencode-v2 = pkgs.callPackage ./pkgs/opencode-v2 { };
   rcsh-language-server = pkgs.callPackage ./pkgs/rcsh-language-server { };
   tree-sitter-mk = pkgs.callPackage ./pkgs/tree-sitter-mk { };
   tree-sitter-rcsh = pkgs.callPackage ./pkgs/tree-sitter-rcsh { };

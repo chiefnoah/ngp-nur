@@ -10,6 +10,7 @@ This repository currently exports:
 
 - `chicago95-theme`
 - `memphis98-icon-theme`
+- `opencode-v2`
 - `retro-5-classic98-openbox-theme`
 - `windows-classic-theme`
 - `windows98-lxqt-theme`
