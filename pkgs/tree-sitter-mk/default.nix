@@ -6,12 +6,12 @@
 
 tree-sitter.buildGrammar {
   language = "mk";
-  version = "0.1.0";
+  version = "0.1.1";
   src = fetchFromGitHub {
     owner = "chiefnoah";
     repo = "tree-sitter-mk";
-    rev = "2965e2dbf74f7dd3fe847c65c92124b1ccc4e5f5";
-    hash = "sha256-N1vjwokTnAhXHiBJ89P3CIqHCXeXz1rzGFnT0g54sLk=";
+    rev = "v0.1.1";
+    hash = "sha256-psDtbRyi21cTpBNJtim1dGylc5s7VdZJh2FDbsZ+2r4=";
   };
 
   meta = {
