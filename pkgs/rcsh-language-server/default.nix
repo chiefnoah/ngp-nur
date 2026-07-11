@@ -4,7 +4,7 @@
   lib,
   makeWrapper,
   nodejs,
-  pnpm_10,
+  pnpm_11,
   pnpmConfigHook,
   stdenvNoCC,
 }:
@@ -16,22 +16,22 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "chiefnoah";
     repo = "rcsh-language-server";
-    rev = "5a2b2fbd2c96c4a38e74c6f8f6918b292d19d27e";
-    hash = "sha256-YSslmf5XGIhW7q3EYYSxl1+pROhidjWERCIb/I/9vvc=";
+    rev = "c1ec6750282887c538d13472ee9acb05f2cd357b";
+    hash = "sha256-SQYeQiNXcoRgF+yOgKB8vZjRVJzPW+otdQNliUUxTuA=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
-    pnpm = pnpm_10;
-    fetcherVersion = 3;
-    hash = "sha256-IFKbBGOnUTJ/KM9PPDHlEINKu+DPR4tKTDYJGeGfGb8=";
+    pnpm = pnpm_11;
+    fetcherVersion = 4;
+    hash = "sha256-2U8d0BKmKaVRyuGlxu5WZjObkHvdU6vS5bxU0mTOh2o=";
   };
 
   nativeBuildInputs = [
     makeWrapper
     nodejs
     pnpmConfigHook
-    pnpm_10
+    pnpm_11
   ];
 
   buildPhase = ''
