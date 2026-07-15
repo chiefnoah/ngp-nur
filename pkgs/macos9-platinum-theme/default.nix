@@ -60,7 +60,7 @@ let
 in
 stdenvNoCC.mkDerivation {
   pname = "macos9-platinum-theme";
-  version = "1.1";
+  version = "1.2";
 
   src = platinum9;
   nativeBuildInputs = [ unzip ];
@@ -74,6 +74,7 @@ stdenvNoCC.mkDerivation {
       "$out/share/backgrounds/macos9-platinum" \
       "$out/share/fonts/truetype" \
       "$out/share/icons" \
+      "$out/share/lxqt/themes/macos9-platinum" \
       "$out/share/macos9-platinum/panel" \
       "$out/share/themes"
 
@@ -84,6 +85,16 @@ stdenvNoCC.mkDerivation {
     cp -r OS9-wallpaper/. "$out/share/backgrounds/macos9-platinum"
     cp Charcoal.ttf MONACO.TTF "$out/share/fonts/truetype"
     cp -r PlatiPlus PlatiPlus26 "$out/share/themes"
+    cp ${./lxqt-config.qss} "$out/share/lxqt/themes/macos9-platinum/lxqt-config.qss"
+    cp ${./lxqt-panel.qss} "$out/share/lxqt/themes/macos9-platinum/lxqt-panel.qss"
+    cp ${./lxqt-config.qss} "$out/share/lxqt/themes/macos9-platinum/lxqt-notificationd.qss"
+    cp ${./lxqt-config.qss} "$out/share/lxqt/themes/macos9-platinum/lxqt-runner.qss"
+    cp "$out/share/icons/NineIcons48x/menu/apple.png" \
+      "$out/share/lxqt/themes/macos9-platinum/apple.png"
+    cp "$out/share/macos9-platinum/PanelAssets/middle.png" \
+      "$out/share/lxqt/themes/macos9-platinum/panel-bottom.png"
+    cp "$out/share/macos9-platinum/PanelAssets/toppanel.png" \
+      "$out/share/lxqt/themes/macos9-platinum/panel-top.png"
 
     runHook postInstall
   '';

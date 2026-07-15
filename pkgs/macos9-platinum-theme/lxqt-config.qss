@@ -1,0 +1,46 @@
+QWidget {
+    color: #000000;
+    background-color: #dddddd;
+    selection-color: #ffffff;
+    selection-background-color: #333399;
+}
+
+QToolTip {
+    color: #000000;
+    background-color: #ffffcc;
+    border: 1px solid #000000;
+}
+
+QMenu {
+    color: #000000;
+    background-color: #dddddd;
+    border: 1px solid #666666;
+}
+
+QMenu::item:selected {
+    color: #ffffff;
+    background-color: #333399;
+}
+
+QLineEdit, QTextEdit, QPlainTextEdit, QAbstractItemView {
+    color: #000000;
+    background-color: #ffffff;
+    border: 1px solid #666666;
+}
+
+QPushButton, QToolButton, QComboBox {
+    color: #000000;
+    background-color: #dddddd;
+    border-top: 1px solid #ffffff;
+    border-left: 1px solid #ffffff;
+    border-right: 1px solid #777777;
+    border-bottom: 1px solid #777777;
+    padding: 2px 5px;
+}
+
+QPushButton:pressed, QToolButton:pressed, QToolButton:checked {
+    border-top: 1px solid #777777;
+    border-left: 1px solid #777777;
+    border-right: 1px solid #ffffff;
+    border-bottom: 1px solid #ffffff;
+}

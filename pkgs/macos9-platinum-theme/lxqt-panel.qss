@@ -1,0 +1,77 @@
+LXQtPanel, LXQtPanel #BackgroundWidget {
+    color: #000000;
+    background-color: #dddddd;
+    font-family: "Charcoal";
+    font-size: 10px;
+}
+
+LXQtPanel[position="Top"] #BackgroundWidget {
+    background-image: url(panel-top.png);
+    border: 0px;
+}
+
+LXQtPanel[position="Bottom"] #BackgroundWidget {
+    background-image: url(panel-bottom.png);
+    border: 0px;
+}
+
+Plugin, Plugin > QToolButton, Plugin > QWidget > QToolButton {
+    color: #000000;
+    background: transparent;
+    border: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
+#MainMenu {
+    qproperty-icon: url(apple.png);
+    background: transparent;
+    border: 0px;
+    margin: 0px 2px;
+    padding: 0px 2px;
+}
+
+#MainMenu:pressed, #MainMenu:checked {
+    color: #ffffff;
+    background-color: #333399;
+}
+
+#MainMenu QMenu, QMenu {
+    color: #000000;
+    background-color: #dddddd;
+    border: 1px solid #666666;
+}
+
+#MainMenu QMenu::item:selected, QMenu::item:selected {
+    color: #ffffff;
+    background-color: #333399;
+}
+
+#QuickLaunch QToolButton, #TaskBar QToolButton, #ShowDesktop {
+    background-color: #dddddd;
+    border-top: 1px solid #ffffff;
+    border-left: 1px solid #ffffff;
+    border-right: 1px solid #777777;
+    border-bottom: 1px solid #777777;
+    margin: 2px 1px;
+    padding: 1px;
+}
+
+#QuickLaunch QToolButton:pressed, #TaskBar QToolButton:on, #ShowDesktop:pressed {
+    border-top: 1px solid #777777;
+    border-left: 1px solid #777777;
+    border-right: 1px solid #ffffff;
+    border-bottom: 1px solid #ffffff;
+}
+
+#WorldClock, #Tray, #StatusNotifierPlugin {
+    color: #000000;
+    background: transparent;
+    border: 0px;
+}
+
+QToolTip {
+    color: #000000;
+    background-color: #ffffcc;
+    border: 1px solid #000000;
+}
