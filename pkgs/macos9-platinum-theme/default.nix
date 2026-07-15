@@ -60,7 +60,7 @@ let
 in
 stdenvNoCC.mkDerivation {
   pname = "macos9-platinum-theme";
-  version = "1.2";
+  version = "1.3";
 
   src = platinum9;
   nativeBuildInputs = [ unzip ];
@@ -81,6 +81,10 @@ stdenvNoCC.mkDerivation {
     unzip -q ${gtkTheme} -d "$out/share/themes"
     tar -xzf ${iconTheme} -C "$out/share/icons"
     unzip -q ${panelAssets} -d "$out/share/macos9-platinum"
+
+    # gtk-update-icon-cache rejects whitespace in icon filenames.
+    mv "$out/share/icons/NineIcons48x/apps/16/Internet Explorer_2_16x16x8.png" \
+      "$out/share/icons/NineIcons48x/apps/16/internet-explorer-2.png"
 
     cp -r OS9-wallpaper/. "$out/share/backgrounds/macos9-platinum"
     cp Charcoal.ttf MONACO.TTF "$out/share/fonts/truetype"
