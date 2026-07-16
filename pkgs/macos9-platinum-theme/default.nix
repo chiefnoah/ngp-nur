@@ -60,7 +60,7 @@ let
 in
 stdenvNoCC.mkDerivation {
   pname = "macos9-platinum-theme";
-  version = "1.4";
+  version = "1.5";
 
   src = platinum9;
   nativeBuildInputs = [ unzip ];
@@ -97,8 +97,7 @@ stdenvNoCC.mkDerivation {
       "$out/share/lxqt/themes/macos9-platinum/apple.png"
     cp "$out/share/macos9-platinum/PanelAssets/middle.png" \
       "$out/share/lxqt/themes/macos9-platinum/panel-bottom.png"
-    cp "$out/share/macos9-platinum/PanelAssets/toppanel.png" \
-      "$out/share/lxqt/themes/macos9-platinum/panel-top.png"
+    cp ${./panel-top.svg} "$out/share/lxqt/themes/macos9-platinum/panel-top.svg"
 
     runHook postInstall
   '';

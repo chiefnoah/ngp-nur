@@ -6,7 +6,7 @@ LXQtPanel, LXQtPanel #BackgroundWidget {
 }
 
 LXQtPanel[position="Top"] #BackgroundWidget {
-    background-image: url(panel-top.png);
+    background-image: url(panel-top.svg);
     border: 0px;
 }
 
