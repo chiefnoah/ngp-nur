@@ -10,6 +10,10 @@ LXQtPanel[position="Top"] #BackgroundWidget {
     border: 0px;
 }
 
+LXQtPanel[position="Top"] {
+    font-size: 11px;
+}
+
 LXQtPanel[position="Bottom"] #BackgroundWidget {
     background-image: url(panel-bottom.png);
     border: 0px;

@@ -60,7 +60,7 @@ let
 in
 stdenvNoCC.mkDerivation {
   pname = "macos9-platinum-theme";
-  version = "1.3";
+  version = "1.4";
 
   src = platinum9;
   nativeBuildInputs = [ unzip ];
