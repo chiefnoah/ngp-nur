@@ -9,6 +9,7 @@
 This repository currently exports:
 
 - `chicago95-theme`
+- `dnscontrol`
 - `memphis98-icon-theme`
 - `opencode-v2`
 - `retro-5-classic98-openbox-theme`
@@ -33,6 +34,67 @@ environment.systemPackages = [
   pkgs.nur.repos.chiefnoah.rcsh-language-server
 ];
 ```
+
+## NixOS Modules
+
+### DNSControl
+
+The `dnscontrol` module generates provider-neutral DNSControl configuration and
+provides `dnscontrol-preview` and `dnscontrol-push` commands. Import it from the
+flake and declare providers and zones:
+
+```nix
+{ config, inputs, ... }:
+{
+  imports = [ inputs.ngp-nur.nixosModules.dnscontrol ];
+
+  ngp.dnscontrol = {
+    enable = true;
+
+    environmentFiles = [ config.age.secrets.porkbun.path ];
+    providers.porkbun = {
+      type = "PORKBUN";
+      settings = {
+        api_key = "$PORKBUN_API_KEY";
+        secret_key = "$PORKBUN_SECRET_API_KEY";
+      };
+    };
+
+    zones."example.com" = {
+      registrar = "porkbun";
+      dnsProviders = [ "porkbun" ];
+      records = [
+        {
+          type = "A";
+          args = [
+            "@"
+            "192.0.2.1"
+          ];
+          ttl = 600;
+        }
+        {
+          type = "MX";
+          args = [
+            "@"
+            10
+            "mail.example.com."
+          ];
+        }
+      ];
+    };
+  };
+}
+```
+
+Secrets may be supplied as a complete runtime `credentialsFile`, through
+`environmentFiles`, or as individual `providers.<name>.secretFiles.<field>`
+paths. These options accept runtime strings such as agenix paths and do not copy
+secret contents to the Nix store.
+
+Run `sudo dnscontrol-preview` before applying changes with
+`sudo dnscontrol-push`. DNS is never changed during NixOS activation. An
+optional `ngp.dnscontrol.apply` service and timer can automate pushes after the
+configuration has been reviewed.
 
 ## Local Checks
 
