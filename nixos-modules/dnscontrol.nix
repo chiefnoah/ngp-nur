@@ -371,6 +371,8 @@ in
     apply = {
       enable = mkEnableOption "the DNSControl push systemd service";
 
+      onSwitch = mkEnableOption "applying DNS changes during NixOS switches";
+
       schedule = mkOption {
         type = types.nullOr types.str;
         default = null;
@@ -444,6 +446,15 @@ in
       serviceConfig = serviceConfig // {
         ExecStart = "${pushCommand}/bin/dnscontrol-push";
       };
+    };
+
+    system.activationScripts.dnscontrol-push = mkIf cfg.apply.onSwitch {
+      deps = optional (config.system.activationScripts ? agenix) "agenix";
+      text = ''
+        if [[ "$NIXOS_ACTION" == switch ]]; then
+          ${pushCommand}/bin/dnscontrol-push
+        fi
+      '';
     };
 
     systemd.timers.dnscontrol-push = mkIf (cfg.apply.enable && cfg.apply.schedule != null) {
