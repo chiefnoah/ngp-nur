@@ -11,13 +11,13 @@
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "rcsh-language-server";
-  version = "5.7.0";
+  version = "5.7.1";
 
   src = fetchFromGitHub {
     owner = "chiefnoah";
     repo = "rcsh-language-server";
-    rev = "c1ec6750282887c538d13472ee9acb05f2cd357b";
-    hash = "sha256-SQYeQiNXcoRgF+yOgKB8vZjRVJzPW+otdQNliUUxTuA=";
+    rev = "934108b5c2a908626d72cadc051c9c969c976fbe";
+    hash = "sha256-2u74o5AHHO1i5PYba7zIxbTi3v3uiBUzsGjhadPFMdo=";
   };
 
   pnpmDeps = fetchPnpmDeps {
