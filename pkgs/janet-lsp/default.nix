@@ -4,12 +4,12 @@
 }:
 
 let
-  rev = "ba7013e77d256cc97c720e2cfcc2c432762c5932";
+  rev = "90167b769b1ee3c4c984853984bfba99fbee794d";
   src = fetchFromGitHub {
     owner = "chiefnoah";
     repo = "janet-lsp";
     inherit rev;
-    hash = "sha256-+IgI7VQjkG5A+j9eOoyMvxL9dsdf7zSLVWUBYgU5+10=";
+    hash = "sha256-TvaPrHAFGvGT1ycdJzDvnM4+fMOG+XPshJX9w5yIsDM=";
   };
   flake = import "${src}/flake.nix";
 in
