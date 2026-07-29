@@ -31,13 +31,13 @@ let
 in
 stdenv.mkDerivation {
   pname = "janet-lsp";
-  version = "0.0.12-unstable-2026-07-28";
+  version = "0.0.12-unstable-2026-07-29";
 
   src = fetchFromGitHub {
     owner = "chiefnoah";
     repo = "janet-lsp";
-    rev = "5c1bb551858d6c3e45abcf1b6bfd0fb75e645ebf";
-    hash = "sha256-WE2+QE6/QmBEIypPXc0uTVoGXSd9zDYogVuWSYPDPAs=";
+    rev = "c0cf1b1c896f93c3bdac176ee09586044b420954";
+    hash = "sha256-5lIS3+HQH0UfEYBSQk7BYyBG5SnZbmICxrff3SF8QgA=";
   };
 
   nativeBuildInputs = [
@@ -47,7 +47,7 @@ stdenv.mkDerivation {
   ];
 
   postPatch = ''
-    sed -i '10,15c\(def commit "5c1bb55")' src/server-meta.janet
+    sed -i '10,15c\(def commit "c0cf1b1")' src/server-meta.janet
   '';
 
   buildPhase = ''
@@ -105,7 +105,7 @@ stdenv.mkDerivation {
   doInstallCheck = true;
 
   installCheckPhase = ''
-    "$out/bin/janet-lsp" --version | grep -F "Janet LSP v0.0.12-5c1bb55"
+    "$out/bin/janet-lsp" --version | grep -F "Janet LSP v0.0.12-c0cf1b1"
   '';
 
   meta = {
