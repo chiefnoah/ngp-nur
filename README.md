@@ -10,6 +10,7 @@ This repository currently exports:
 
 - `chicago95-theme`
 - `dnscontrol`
+- `janet-lsp`
 - `memphis98-icon-theme`
 - `opencode-v2`
 - `retro-5-classic98-openbox-theme`

@@ -1,0 +1,92 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+for(tool in awk curl git jq nix perl) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+file=default.nix
+repo=https://github.com/chiefnoah/janet-lsp
+
+current=`{awk '
+  /owner = "chiefnoah"/ { source = 1; next }
+  source && $1 == "rev" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+latest=`{git ls-remote $repo.git HEAD | awk 'NR == 1 { print $1 }'}
+
+if(! ~ $#current 1 || ! ~ $#latest 1) {
+  echo 'janet-lsp: could not determine the current or latest revision' >[1=2]
+  exit 1
+}
+
+short_current=`{printf %.7s $current}
+if(~ $current $latest) {
+  echo 'janet-lsp: current ('$short_current^')'
+  exit 0
+}
+
+archive=$repo/archive/$latest.tar.gz
+prefetch=`{nix store prefetch-file --json --unpack $archive}
+hash=`{echo $^prefetch | jq -r .hash}
+source=`{echo $^prefetch | jq -r .storePath}
+date=`{curl -fsSL https://api.github.com/repos/chiefnoah/janet-lsp/commits/$latest |
+  jq -r '.commit.committer.date[0:10]'}
+project_version=`{awk '
+  $1 == ":version" {
+    gsub(/["\)]/, "", $2)
+    print $2
+    exit
+  }
+' $source/project.janet}
+current_version=`{awk '
+  $1 == "version" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+
+if(! ~ $#hash 1 || ~ $hash null ||
+   ! ~ $#source 1 || ~ $source null ||
+   ! ~ $#date 1 || ~ $date null ||
+   ! ~ $#project_version 1 ||
+   ! ~ $#current_version 1) {
+  echo 'janet-lsp: could not determine update metadata' >[1=2]
+  exit 1
+}
+
+short_latest=`{printf %.7s $latest}
+version=$project_version-unstable-$date
+current_hash=`{awk '
+  /owner = "chiefnoah"/ { source = 1; next }
+  source && $1 == "hash" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+
+if(! ~ $#current_hash 1) {
+  echo 'janet-lsp: could not determine the current source hash' >[1=2]
+  exit 1
+}
+
+echo 'janet-lsp: '$short_current' -> '$short_latest' ('$date')'
+
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current $latest $file
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $short_current $short_latest $file
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current_hash $hash $file
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current_version $version $file
