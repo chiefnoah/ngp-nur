@@ -23,7 +23,6 @@
 
   chicago95-theme = pkgs.callPackage ./pkgs/chicago95-theme { };
   dnscontrol = pkgs.callPackage ./pkgs/dnscontrol { };
-  janet-lsp = pkgs.callPackage ./pkgs/janet-lsp { };
   macos9-platinum-theme = pkgs.callPackage ./pkgs/macos9-platinum-theme { };
   memphis98-icon-theme = pkgs.callPackage ./pkgs/memphis98-icon-theme { };
   retro-5-classic98-openbox-theme = pkgs.callPackage ./pkgs/retro-5-classic98-openbox-theme { };
