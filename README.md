@@ -12,6 +12,7 @@ This repository currently exports:
 - `dnscontrol`
 - `memphis98-icon-theme`
 - `opencode-v2`
+- `reims-vgpu`
 - `retro-5-classic98-openbox-theme`
 - `windows-classic-theme`
 - `windows98-lxqt-theme`
@@ -95,6 +96,28 @@ Run `sudo dnscontrol-preview` before applying changes with
 `sudo dnscontrol-push`. DNS is never changed during NixOS activation. An
 optional `ngp.dnscontrol.apply` service and timer can automate pushes after the
 configuration has been reviewed.
+
+### Reims vGPU
+
+`reims-vgpu` builds the upstream patched x86_64 QEMU with the experimental
+`reims-vgpu-pci` device and its Vulkan backend. It is for macOS guests on an
+x86_64 Linux KVM host; it does not provide macOS installation media, OpenCore,
+or guest disks. The upstream project considers the device alpha-quality.
+
+```nix
+{ inputs, ... }:
+{
+  imports = [ inputs.ngp-nur.nixosModules.reims-vgpu ];
+
+  ngp.reimsVgpu.enable = true;
+}
+```
+
+The module enables graphics support, adds the QEMU binary, and configures
+`kvm.ignore_msrs=1`. A working host Vulkan ICD and access to `/dev/kvm` are
+still required. Use `qemu-system-x86_64 -device
+reims-vgpu-pci,help` to confirm the device is present, then follow upstream's
+OSX-KVM/OpenCore provisioning and launch guidance.
 
 ## Local Checks
 
