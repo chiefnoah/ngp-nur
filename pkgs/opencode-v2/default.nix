@@ -58,6 +58,7 @@ stdenvNoCC.mkDerivation {
     install -Dm755 bin/opencode2 $out/bin/opencode2
     wrapProgram $out/bin/opencode2 \
       --prefix PATH : ${lib.makeBinPath [ ripgrep ]} \
+      ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ stdenv.cc.cc.lib ]} \\"}
       --set OPENCODE_DISABLE_AUTOUPDATE true
     ln -s opencode2 $out/bin/opencode
 
@@ -68,6 +69,8 @@ stdenvNoCC.mkDerivation {
     export HOME="$TMPDIR"
     $out/bin/opencode --help > help.txt
     grep -q 'opencode' help.txt
+    $out/bin/opencode serve --stdio > serve.txt
+    grep -q '"url"' serve.txt
     if grep -q 'Bun is a fast JavaScript runtime' help.txt; then
       echo 'opencode payload was removed from the Bun standalone executable' >&2
       exit 1
