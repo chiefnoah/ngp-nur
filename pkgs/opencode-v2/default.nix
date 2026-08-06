@@ -58,7 +58,7 @@ stdenvNoCC.mkDerivation {
     install -Dm755 bin/opencode2 $out/bin/opencode2
     wrapProgram $out/bin/opencode2 \
       --prefix PATH : ${lib.makeBinPath [ ripgrep ]} \
-      ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ stdenv.cc.cc.lib ]} \\"}
+      ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ stdenv.cc.cc.lib ]}"} \
       --set OPENCODE_DISABLE_AUTOUPDATE true
     ln -s opencode2 $out/bin/opencode
 
