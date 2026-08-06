@@ -9,6 +9,7 @@
 This repository currently exports:
 
 - `chicago95-theme`
+- `celld`
 - `dnscontrol`
 - `janet-lsp`
 - `memphis98-icon-theme`
@@ -38,6 +39,51 @@ environment.systemPackages = [
 ```
 
 ## NixOS Modules
+
+### celld
+
+The `celld` module runs celld directly as a hardened systemd service. By
+default it also starts a native, single-node Garage service, generates
+persistent credentials under `/var/lib/garage`, and creates a bucket named
+`celld`. No container runtime is used:
+
+```nix
+{ inputs, ... }:
+{
+  imports = [ inputs.ngp-nur.nixosModules.celld ];
+
+  services.celld.enable = true;
+}
+```
+
+The default Garage instance has replication factor 1 and therefore provides no
+redundancy. For a celld fleet or production storage, configure a shared Garage
+cluster separately and point every celld node at its S3 API. Setting
+`services.celld.s3` selects an external S3-compatible bucket and prevents the
+module from starting its local Garage instance:
+
+```nix
+{ config, inputs, ... }:
+{
+  imports = [ inputs.ngp-nur.nixosModules.celld ];
+
+  services.celld = {
+    enable = true;
+    s3 = {
+      bucket = "s3://celld-production";
+      endpoint = "https://garage.example.com";
+      region = "garage";
+    };
+    environmentFiles = [ config.age.secrets.celld-s3.path ];
+    listenAddress = "0.0.0.0";
+    advertise = "node-a.internal:8080";
+  };
+}
+```
+
+The S3 credentials file should define `AWS_ACCESS_KEY_ID` and
+`AWS_SECRET_ACCESS_KEY`. Peer traffic is not protected by TLS; advertised
+addresses should remain on a trusted private network or encrypted overlay.
 
 ### DNSControl
 

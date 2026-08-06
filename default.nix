@@ -22,6 +22,7 @@
   overlays = import ./overlays; # nixpkgs overlays
 
   chicago95-theme = pkgs.callPackage ./pkgs/chicago95-theme { };
+  celld = pkgs.callPackage ./pkgs/celld { };
   dnscontrol = pkgs.callPackage ./pkgs/dnscontrol { };
   janet-lsp = pkgs.callPackage ./pkgs/janet-lsp { inherit pkgs; };
   macos9-platinum-theme = pkgs.callPackage ./pkgs/macos9-platinum-theme { };
