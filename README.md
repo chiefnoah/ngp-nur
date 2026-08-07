@@ -43,8 +43,9 @@ environment.systemPackages = [
 ### celld
 
 The `celld` module runs named celld application fleets as hardened systemd
-services. Each instance uses a bucket matching its name by default and gets a
-separate native, single-node Garage service. No container runtime is used:
+services. By default, all instances share one native, single-node Garage
+service and its credentials. Each instance gets a bucket matching its name. No
+container runtime is used:
 
 ```nix
 { inputs, ... }:
@@ -91,10 +92,21 @@ services.celld.instances.application = {
 Using a shared source root allows Workers to import packages elsewhere in a
 monorepo. A plain path is shorthand for `root = path; config = ".";`.
 
-Module-managed Garage instances have replication factor 1 and provide no
-redundancy. For a celld fleet or production storage, use external shared
-S3-compatible storage. Setting an instance's `s3` option prevents its local
-Garage service from starting:
+The shared Garage service listens on `127.0.0.1:3900` by default. Configure it
+once through `services.celld.garage`; the module creates every instance bucket
+and grants the shared key access automatically:
+
+```nix
+services.celld.garage = {
+  apiAddress = "127.0.0.1:3900";
+  rpcAddress = "127.0.0.1:3901";
+  environmentFile = config.age.secrets.celld-garage.path;
+};
+```
+
+Module-managed Garage has replication factor 1 and provides no redundancy. For
+a production fleet, an instance can override the shared default with external
+S3-compatible storage:
 
 ```nix
 { config, inputs, ... }:
@@ -119,8 +131,10 @@ Garage service from starting:
 ```
 
 The S3 credentials file should define `AWS_ACCESS_KEY_ID` and
-`AWS_SECRET_ACCESS_KEY`. Peer traffic is not protected by TLS; advertised
-addresses should remain on a trusted private network or encrypted overlay.
+`AWS_SECRET_ACCESS_KEY`. Instance `environmentFiles` are loaded after the
+shared Garage credentials, so they may override credentials for that instance.
+Peer traffic is not protected by TLS; advertised addresses should remain on a
+trusted private network or encrypted overlay.
 
 ### DNSControl
 

@@ -56,7 +56,7 @@ let
   );
 
   instanceType = types.submodule (
-    { name, config, ... }:
+    { name, ... }:
     {
       options = {
         enable = mkEnableOption "the ${name} celld instance" // {
@@ -130,8 +130,8 @@ let
           );
           default = null;
           description = ''
-            External S3-compatible storage. When null, the module starts a
-            separate single-node Garage service for this instance.
+            External S3-compatible storage override. When null, this instance
+            uses the module's shared Garage service and credentials.
           '';
         };
 
@@ -168,47 +168,11 @@ let
         };
 
         garage = {
-          package = mkOption {
-            type = types.package;
-            default = pkgs.garage_2;
-            defaultText = "pkgs.garage_2";
-            description = "Garage package to use. Version 2.3 or newer is required.";
-          };
-
           bucket = mkOption {
             type = types.strMatching "[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]";
             default = name;
             defaultText = "the celld instance name";
-            description = "Bucket created for this instance's local Garage service.";
-          };
-
-          environmentFile = mkOption {
-            type = types.nullOr types.str;
-            default = null;
-            description = ''
-              Optional credentials shared by this instance's Garage and celld
-              services. By default persistent credentials are generated.
-            '';
-          };
-
-          apiAddress = mkOption {
-            type = types.str;
-            default = "127.0.0.1:${toString (config.port + 20000)}";
-            defaultText = "127.0.0.1:<instance port + 20000>";
-            description = "S3 API listen address for this instance's Garage service.";
-          };
-
-          rpcAddress = mkOption {
-            type = types.str;
-            default = "127.0.0.1:${toString (config.port + 20001)}";
-            defaultText = "127.0.0.1:<instance port + 20001>";
-            description = "RPC listen address for this instance's Garage service.";
-          };
-
-          settings = mkOption {
-            type = types.attrs;
-            default = { };
-            description = "Additional settings merged into this instance's Garage configuration.";
+            description = "Bucket created for this instance in the shared Garage service.";
           };
         };
 
@@ -247,26 +211,89 @@ let
   );
 
   enabledInstances = filterAttrs (_: instance: instance.enable) cfg.instances;
+  localInstances = filterAttrs (_: instance: instance.s3 == null) enabledInstances;
+  useGarage = localInstances != { };
+  garageStateDirectory = "celld-garage";
+  garageCredentialsFile =
+    if cfg.garage.environmentFile != null then
+      cfg.garage.environmentFile
+    else
+      "/var/lib/${garageStateDirectory}/celld.env";
+  garageConfig = garageFormat.generate "celld-garage.toml" (
+    lib.recursiveUpdate {
+      metadata_dir = "/var/lib/${garageStateDirectory}/meta";
+      data_dir = "/var/lib/${garageStateDirectory}/data";
+      db_engine = "sqlite";
+      replication_factor = 1;
+      rpc_bind_addr = cfg.garage.rpcAddress;
+      rpc_public_addr = cfg.garage.rpcAddress;
+      s3_api = {
+        api_bind_addr = cfg.garage.apiAddress;
+        s3_region = "garage";
+        root_domain = ".s3.garage.localhost";
+      };
+    } cfg.garage.settings
+  );
+  generateGarageCredentials = pkgs.writeShellApplication {
+    name = "celld-garage-credentials-start";
+    runtimeInputs = [ pkgs.openssl ];
+    text = ''
+      install -d -m 0700 /var/lib/${garageStateDirectory}
+      if [[ ! -e ${lib.escapeShellArg garageCredentialsFile} ]]; then
+        access_key="GK$(openssl rand -hex 16)"
+        secret_key="$(openssl rand -hex 32)"
+        umask 0077
+        cat > ${lib.escapeShellArg garageCredentialsFile} <<EOF
+      GARAGE_RPC_SECRET=$(openssl rand -hex 32)
+      GARAGE_DEFAULT_ACCESS_KEY=$access_key
+      GARAGE_DEFAULT_SECRET_KEY=$secret_key
+      AWS_ACCESS_KEY_ID=$access_key
+      AWS_SECRET_ACCESS_KEY=$secret_key
+      EOF
+      fi
+    '';
+  };
+  initializeGarageBuckets = pkgs.writeShellApplication {
+    name = "celld-garage-buckets-start";
+    text = ''
+      for attempt in $(seq 1 30); do
+        if ${getExe cfg.garage.package} status >/dev/null 2>&1; then
+          break
+        fi
+        if [[ "$attempt" == 30 ]]; then
+          echo "Garage did not become ready" >&2
+          exit 1
+        fi
+        sleep 1
+      done
+
+      ${concatMapStringsSep "\n" (
+        instance:
+        let
+          bucket = lib.escapeShellArg instance.garage.bucket;
+        in
+        ''
+          if ! ${getExe cfg.garage.package} bucket info ${bucket} >/dev/null 2>&1; then
+            ${getExe cfg.garage.package} bucket create ${bucket}
+          fi
+          ${getExe cfg.garage.package} bucket allow ${bucket} \
+            --key "$GARAGE_DEFAULT_ACCESS_KEY" --read --write --owner
+        ''
+      ) (attrValues localInstances)}
+    '';
+  };
 
   instanceConfig =
     name: instance:
     let
-      useGarage = instance.s3 == null;
+      useLocalGarage = instance.s3 == null;
       serviceName = "celld-${name}";
       deployServiceName = "${serviceName}-deploy";
-      garageServiceName = "${serviceName}-garage";
-      credentialsServiceName = "${garageServiceName}-credentials";
       celldStateDirectory = serviceName;
-      garageStateDirectory = garageServiceName;
-      bucket = if useGarage then "s3://${instance.garage.bucket}" else instance.s3.bucket;
-      endpoint = if useGarage then "http://${instance.garage.apiAddress}" else instance.s3.endpoint;
-      region = if useGarage then "garage" else instance.s3.region;
-      credentialsFile =
-        if instance.garage.environmentFile != null then
-          instance.garage.environmentFile
-        else
-          "/var/lib/${garageStateDirectory}/celld.env";
-      environmentFiles = instance.environmentFiles ++ optional useGarage credentialsFile;
+      bucket = if useLocalGarage then "s3://${instance.garage.bucket}" else instance.s3.bucket;
+      endpoint = if useLocalGarage then "http://${cfg.garage.apiAddress}" else instance.s3.endpoint;
+      region = if useLocalGarage then "garage" else instance.s3.region;
+      environmentFiles = optional useLocalGarage garageCredentialsFile ++ instance.environmentFiles;
       hasProjects = instance.projects != { };
       projectNames = attrNames instance.projects;
       primaryIsValid =
@@ -331,41 +358,6 @@ let
         instance.advertise
       ]
       ++ instance.extraArgs;
-      garageConfig = garageFormat.generate "${garageServiceName}.toml" (
-        lib.recursiveUpdate {
-          metadata_dir = "/var/lib/${garageStateDirectory}/meta";
-          data_dir = "/var/lib/${garageStateDirectory}/data";
-          db_engine = "sqlite";
-          replication_factor = 1;
-          rpc_bind_addr = instance.garage.rpcAddress;
-          rpc_public_addr = instance.garage.rpcAddress;
-          s3_api = {
-            api_bind_addr = instance.garage.apiAddress;
-            s3_region = "garage";
-            root_domain = ".s3.garage.localhost";
-          };
-        } instance.garage.settings
-      );
-      generateCredentials = pkgs.writeShellApplication {
-        name = "${credentialsServiceName}-start";
-        runtimeInputs = [ pkgs.openssl ];
-        text = ''
-          install -d -m 0700 /var/lib/${garageStateDirectory}
-          if [[ ! -e ${lib.escapeShellArg credentialsFile} ]]; then
-            access_key="GK$(openssl rand -hex 16)"
-            secret_key="$(openssl rand -hex 32)"
-            umask 0077
-            cat > ${lib.escapeShellArg credentialsFile} <<EOF
-          GARAGE_RPC_SECRET=$(openssl rand -hex 32)
-          GARAGE_DEFAULT_ACCESS_KEY=$access_key
-          GARAGE_DEFAULT_SECRET_KEY=$secret_key
-          GARAGE_DEFAULT_BUCKET=${instance.garage.bucket}
-          AWS_ACCESS_KEY_ID=$access_key
-          AWS_SECRET_ACCESS_KEY=$secret_key
-          EOF
-          fi
-        '';
-      };
       commonHardening = {
         CapabilityBoundingSet = "";
         LockPersonality = true;
@@ -409,10 +401,6 @@ let
           ) (attrValues instance.projects);
           message = "services.celld.instances.${name} project config paths must stay within their source roots";
         }
-        {
-          assertion = !useGarage || instance.port <= 45534;
-          message = "services.celld.instances.${name}.port must be at most 45534 with local Garage defaults";
-        }
       ];
 
       systemd.services = {
@@ -424,10 +412,10 @@ let
           after = [
             "network-online.target"
           ]
-          ++ optional useGarage "${garageServiceName}.service"
+          ++ optional useLocalGarage "celld-garage-buckets.service"
           ++ optional hasProjects "${deployServiceName}.service";
           requires =
-            optional useGarage "${garageServiceName}.service"
+            optional useLocalGarage "celld-garage-buckets.service"
             ++ optional hasProjects "${deployServiceName}.service";
           restartTriggers =
             map (project: project.source) (attrValues projectSources) ++ optional hasProjects deployScript;
@@ -454,8 +442,8 @@ let
           description = "Deploy Wrangler projects for celld instance ${name}";
           documentation = [ "https://celld.dev/docs" ];
           wants = [ "network-online.target" ];
-          after = [ "network-online.target" ] ++ optional useGarage "${garageServiceName}.service";
-          requires = optional useGarage "${garageServiceName}.service";
+          after = [ "network-online.target" ] ++ optional useLocalGarage "celld-garage-buckets.service";
+          requires = optional useLocalGarage "celld-garage-buckets.service";
           before = [ "${serviceName}.service" ];
           environment = instance.environment;
           serviceConfig = {
@@ -467,60 +455,55 @@ let
             UMask = "0077";
           };
         };
-      }
-      // optionalAttrs useGarage {
-        ${garageServiceName} = {
-          description = "Garage object storage for celld instance ${name}";
-          wantedBy = [ "multi-user.target" ];
-          wants = [ "network-online.target" ];
-          after = [
-            "network-online.target"
-          ]
-          ++ optional (instance.garage.environmentFile == null) "${credentialsServiceName}.service";
-          requires = optional (instance.garage.environmentFile == null) "${credentialsServiceName}.service";
-          restartTriggers = [
-            garageConfig
-          ]
-          ++ optional (instance.garage.environmentFile != null) credentialsFile;
-          environment = {
-            GARAGE_CONFIG_FILE = garageConfig;
-            RUST_LOG = "garage=info";
-          };
-          serviceConfig = {
-            ExecStart = "${getExe instance.garage.package} server --single-node --default-bucket";
-            EnvironmentFile = credentialsFile;
-            StateDirectory = garageStateDirectory;
-            DynamicUser = true;
-            ProtectHome = true;
-            NoNewPrivileges = true;
-            Restart = "on-failure";
-            RestartSec = "5s";
-            LimitNOFILE = 42000;
-          };
-        };
-      }
-      // optionalAttrs (useGarage && instance.garage.environmentFile == null) {
-        ${credentialsServiceName} = {
-          description = "Generate Garage credentials for celld instance ${name}";
-          before = [ "${garageServiceName}.service" ];
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-            ExecStart = getExe generateCredentials;
-            StateDirectory = garageStateDirectory;
-            UMask = "0077";
-          };
-        };
       };
     };
 
   generatedInstances = mapAttrs instanceConfig enabledInstances;
 in
 {
-  options.services.celld.instances = mkOption {
-    type = types.attrsOf instanceType;
-    default = { };
-    description = "Named celld application fleets.";
+  options.services.celld = {
+    instances = mkOption {
+      type = types.attrsOf instanceType;
+      default = { };
+      description = "Named celld application fleets.";
+    };
+
+    garage = {
+      package = mkOption {
+        type = types.package;
+        default = pkgs.garage_2;
+        defaultText = "pkgs.garage_2";
+        description = "Garage package to use. Version 2.3 or newer is required.";
+      };
+
+      environmentFile = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = ''
+          Optional credentials shared by Garage and local celld instances. The
+          file must define GARAGE_RPC_SECRET, GARAGE_DEFAULT_ACCESS_KEY,
+          GARAGE_DEFAULT_SECRET_KEY, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY.
+        '';
+      };
+
+      apiAddress = mkOption {
+        type = types.str;
+        default = "127.0.0.1:3900";
+        description = "S3 API listen address for the shared Garage service.";
+      };
+
+      rpcAddress = mkOption {
+        type = types.str;
+        default = "127.0.0.1:3901";
+        description = "RPC listen address for the shared Garage service.";
+      };
+
+      settings = mkOption {
+        type = types.attrs;
+        default = { };
+        description = "Additional settings merged into the shared Garage configuration.";
+      };
+    };
   };
 
   config = {
@@ -536,6 +519,69 @@ in
 
     systemd.services = mkMerge (
       map (instance: instance.systemd.services) (attrValues generatedInstances)
+      ++ optional useGarage {
+        celld-garage = {
+          description = "Shared Garage object storage for celld";
+          wantedBy = [ "multi-user.target" ];
+          wants = [ "network-online.target" ];
+          after = [
+            "network-online.target"
+          ]
+          ++ optional (cfg.garage.environmentFile == null) "celld-garage-credentials.service";
+          requires = optional (cfg.garage.environmentFile == null) "celld-garage-credentials.service";
+          restartTriggers = [
+            garageConfig
+          ]
+          ++ optional (cfg.garage.environmentFile != null) garageCredentialsFile;
+          environment = {
+            GARAGE_CONFIG_FILE = garageConfig;
+            RUST_LOG = "garage=info";
+          };
+          serviceConfig = {
+            ExecStart = "${getExe cfg.garage.package} server --single-node --default-access-key";
+            EnvironmentFile = garageCredentialsFile;
+            StateDirectory = garageStateDirectory;
+            DynamicUser = true;
+            ProtectHome = true;
+            NoNewPrivileges = true;
+            Restart = "on-failure";
+            RestartSec = "5s";
+            LimitNOFILE = 42000;
+          };
+        };
+
+        celld-garage-buckets = {
+          description = "Create Garage buckets for celld instances";
+          wantedBy = [ "multi-user.target" ];
+          after = [ "celld-garage.service" ];
+          requires = [ "celld-garage.service" ];
+          restartTriggers = [
+            initializeGarageBuckets
+          ]
+          ++ optional (cfg.garage.environmentFile != null) garageCredentialsFile;
+          environment.GARAGE_CONFIG_FILE = garageConfig;
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = getExe initializeGarageBuckets;
+            EnvironmentFile = garageCredentialsFile;
+            UMask = "0077";
+          };
+        };
+      }
+      ++ optional (useGarage && cfg.garage.environmentFile == null) {
+        celld-garage-credentials = {
+          description = "Generate credentials for the shared celld Garage service";
+          before = [ "celld-garage.service" ];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = getExe generateGarageCredentials;
+            StateDirectory = garageStateDirectory;
+            UMask = "0077";
+          };
+        };
+      }
     );
 
     users.users.celld =
