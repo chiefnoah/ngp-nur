@@ -42,33 +42,67 @@ environment.systemPackages = [
 
 ### celld
 
-The `celld` module runs celld directly as a hardened systemd service. By
-default it also starts a native, single-node Garage service, generates
-persistent credentials under `/var/lib/garage`, and creates a bucket named
-`celld`. No container runtime is used:
+The `celld` module runs named celld application fleets as hardened systemd
+services. Each instance uses a bucket matching its name by default and gets a
+separate native, single-node Garage service. No container runtime is used:
 
 ```nix
 { inputs, ... }:
 {
   imports = [ inputs.ngp-nur.nixosModules.celld ];
 
-  services.celld.enable = true;
+  services.celld.instances.hello = {
+    port = 8082;
+    projects.hello = ./worker;
+    primaryProject = "hello";
+  };
 }
 ```
 
-The default Garage instance has replication factor 1 and therefore provides no
-redundancy. For a celld fleet or production storage, configure a shared Garage
-cluster separately and point every celld node at its S3 API. Setting
-`services.celld.s3` selects an external S3-compatible bucket and prevents the
-module from starting its local Garage instance:
+The project directory must contain `wrangler.json` or `wrangler.jsonc`. It is
+copied to the Nix store, deployed before celld starts, and redeployed when its
+source changes. Do not put secrets in project sources because Nix store paths
+are readable by local users.
+
+An instance may contain several Wrangler projects connected by service
+bindings. Set `primaryProject` to the project that receives incoming requests.
+Other projects are deployed first and the primary project is deployed last:
+
+```nix
+services.celld.instances.application = {
+  port = 8082;
+  listenAddress = "0.0.0.0";
+  advertise = "odin:8082";
+
+  projects = {
+    authentication = {
+      root = ./my-application;
+      config = "workers/authentication";
+    };
+    api = {
+      root = ./my-application;
+      config = "workers/api";
+    };
+  };
+  primaryProject = "api";
+};
+```
+
+Using a shared source root allows Workers to import packages elsewhere in a
+monorepo. A plain path is shorthand for `root = path; config = ".";`.
+
+Module-managed Garage instances have replication factor 1 and provide no
+redundancy. For a celld fleet or production storage, use external shared
+S3-compatible storage. Setting an instance's `s3` option prevents its local
+Garage service from starting:
 
 ```nix
 { config, inputs, ... }:
 {
   imports = [ inputs.ngp-nur.nixosModules.celld ];
 
-  services.celld = {
-    enable = true;
+  services.celld.instances.production = {
+    port = 8080;
     s3 = {
       bucket = "s3://celld-production";
       endpoint = "https://garage.example.com";
@@ -77,6 +111,9 @@ module from starting its local Garage instance:
     environmentFiles = [ config.age.secrets.celld-s3.path ];
     listenAddress = "0.0.0.0";
     advertise = "node-a.internal:8080";
+
+    projects.api = ./worker;
+    primaryProject = "api";
   };
 }
 ```
