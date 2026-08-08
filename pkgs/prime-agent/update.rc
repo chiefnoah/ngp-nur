@@ -9,6 +9,10 @@ if(! whatis nix > /dev/null >[2=1]) {
   exit 127
 }
 
+# Realize the derivation's .drv files so nix-update's read-only
+# `nix-instantiate --eval --strict` doesn't fail with "path ... is not valid".
+nix eval --raw --no-write-lock-file '.#prime-agent.drvPath' >/dev/null
+
 nix run 'nixpkgs#nix-update' -- \
   --flake \
   --generate-lockfile \
