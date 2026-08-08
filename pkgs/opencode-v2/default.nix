@@ -9,23 +9,23 @@
 }:
 
 let
-  version = "0.0.0-next-16842";
+  version = "0.0.0-next-17010";
   artifacts = {
     "aarch64-darwin" = {
       artifact = "cli-darwin-arm64";
-      hash = "sha512-Lkkm/bOIz/ScgexcAm6233H7TTD6p1bZOuzDTe3tBVEMshgu7Xyko1Yu0B1kAIqGOwcZWe9IRAKeaOVV1SFRzg==";
+      hash = "sha512-WcfRKo6FxPWR/KrV5xMt4De4ck2FrmvxEiBQGwZX7VpgVXD38g7rCcroW+s/Pdxw2YD/viQM2sPc8QB2FV0eqg==";
     };
     "x86_64-darwin" = {
       artifact = "cli-darwin-x64-baseline";
-      hash = "sha512-4V0aKKl6cEc8cWLcOVDKSmbqYHj9Me7STGj8Aal7NItA4MJhICB0qqcn34uOUWM3cMFeEzHA9K2RW41ZAai2JQ==";
+      hash = "sha512-su0IreYxzKJYMEl56rnP7ukm85+ErpoADv3fJyK/4XmjN0gamzP7xFwBsc0aDsMrDaPA7Pq9tjtCw9+kgyyPRw==";
     };
     "aarch64-linux" = {
       artifact = "cli-linux-arm64";
-      hash = "sha512-GhuPXEwqCqCO91HHpqq3jyg9/yXT8LhHKoiQ2DjWHuTGj4hE5Zj04BEcXYSn/roiQjC5uqNhjsLX6yyurj/Jfw==";
+      hash = "sha512-27h2rgYGC/dcl/5x7ftKVOXe+VYhkpQQBZq0KKm8KQxb66toxFw4JMGpwN0ltZrsxh+yrgxLCMNAfOEfNqDS+A==";
     };
     "x86_64-linux" = {
       artifact = "cli-linux-x64";
-      hash = "sha512-FoX9MNqEwVJp81HOywPb3zrt5ZUbpVS9xvwhmW2B8VeHogHDWh+SJZB5cKSp4R8kRmPWO6T2u6hrFotbQGBBEw==";
+      hash = "sha512-KVBvkezDG1Sj0FurzHpnzZj7k0KCL52okCRsY4K835PrTWc68drKTded+Fj/UWT0yYZcfaa1EqZcUKEtitUIHA==";
     };
   };
   inherit (artifacts.${stdenvNoCC.hostPlatform.system}) artifact hash;
