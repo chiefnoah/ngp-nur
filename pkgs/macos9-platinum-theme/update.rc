@@ -1,0 +1,58 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+for(tool in awk git jq nix perl) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+file=default.nix
+repo=https://github.com/timnetworks/Platinum9
+
+current=`{awk '
+  $1 == "rev" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+latest=`{git ls-remote $repo.git HEAD | awk 'NR == 1 { print $1 }'}
+
+if(! ~ $#current 1 || ! ~ $#latest 1) {
+  echo 'macos9-platinum-theme: could not determine the current or latest revision' >[1=2]
+  exit 1
+}
+
+short_current=`{printf %.7s $current}
+if(~ $current $latest) {
+  echo 'macos9-platinum-theme: current ('$short_current^')'
+  exit 0
+}
+
+archive=$repo/archive/$latest.tar.gz
+hash=`{nix store prefetch-file --json --unpack $archive | jq -r .hash}
+current_hash=`{awk '
+  seen && $1 == "hash" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+  $1 == "rev" { seen = 1 }
+' $file}
+
+if(! ~ $#hash 1 || ~ $hash null '' || ! ~ $#current_hash 1) {
+  echo 'macos9-platinum-theme: could not determine the source hash' >[1=2]
+  exit 1
+}
+
+short_latest=`{printf %.7s $latest}
+echo 'macos9-platinum-theme: '$short_current' -> '$short_latest
+
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current $latest $file
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current_hash $hash $file

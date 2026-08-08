@@ -1,0 +1,62 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+for(tool in awk git jq nix perl) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+file=default.nix
+repo=https://github.com/chiefnoah/tree-sitter-mk
+
+current=`{awk '
+  $1 == "version" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+latest_tag=`{git ls-remote --tags --sort=-v:refname $repo.git 'v*' | awk '
+  $2 !~ /\^\{\}$/ {
+    sub("refs/tags/", "", $2)
+    print $2
+    exit
+  }
+'}
+latest=`{echo $latest_tag | awk '{ sub("^v", ""); print }'}
+
+if(! ~ $#current 1 || ! ~ $#latest 1 || ~ $latest '') {
+  echo 'tree-sitter-mk: could not determine the current or latest version' >[1=2]
+  exit 1
+}
+
+if(~ $current $latest) {
+  echo 'tree-sitter-mk: current ('$current')'
+  exit 0
+}
+
+archive=$repo/archive/$latest_tag.tar.gz
+hash=`{nix store prefetch-file --json --unpack $archive | jq -r .hash}
+current_hash=`{awk '
+  $1 == "hash" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+
+if(! ~ $#hash 1 || ~ $hash null '' || ! ~ $#current_hash 1) {
+  echo 'tree-sitter-mk: could not determine the source hash' >[1=2]
+  exit 1
+}
+
+echo 'tree-sitter-mk: '$current' -> '$latest
+
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current $latest $file
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current_hash $hash $file

@@ -1,0 +1,58 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+for(tool in awk curl git jq nix perl) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+file=default.nix
+repo=https://github.com/chiefnoah/rcsh-language-server
+
+current=`{awk '
+  $1 == "rev" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+latest=`{git ls-remote $repo.git HEAD | awk 'NR == 1 { print $1 }'}
+latest_version=`{curl -fsSL $repo/raw/$latest/server/package.json | jq -r .version}
+
+if(! ~ $#current 1 || ! ~ $#latest 1 || ! ~ $#latest_version 1 ||
+   ~ $latest_version null '') {
+  echo 'rcsh-language-server: could not determine the latest revision or version' >[1=2]
+  exit 1
+}
+
+if(~ $current $latest) {
+  echo 'rcsh-language-server: current ('$latest_version')'
+  exit 0
+}
+
+short_current=`{printf %.7s $current}
+short_latest=`{printf %.7s $latest}
+echo 'rcsh-language-server: '$short_current' -> '$short_latest' ('$latest_version')'
+
+cd ../..
+nix run 'nixpkgs#nix-update' -- --flake --version=branch rcsh-language-server
+
+generated_version=`{awk '
+  $1 == "version" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' pkgs/rcsh-language-server/$file}
+
+if(! ~ $#generated_version 1) {
+  echo 'rcsh-language-server: could not determine the generated version' >[1=2]
+  exit 1
+}
+
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $generated_version $latest_version pkgs/rcsh-language-server/$file

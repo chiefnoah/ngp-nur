@@ -16,8 +16,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "chiefnoah";
     repo = "rcsh-language-server";
-    rev = "934108b5c2a908626d72cadc051c9c969c976fbe";
-    hash = "sha256-2u74o5AHHO1i5PYba7zIxbTi3v3uiBUzsGjhadPFMdo=";
+    rev = "df6f57e911420519b9ae42376a1da545b22977b0";
+    hash = "sha256-KzlkwELrKohocdWEAhidyIQuDrthQ5mErpVbOaONVA8=";
   };
 
   pnpmDeps = fetchPnpmDeps {

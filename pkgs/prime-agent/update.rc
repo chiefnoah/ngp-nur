@@ -1,0 +1,16 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+cd ../..
+
+if(! whatis nix > /dev/null >[2=1]) {
+  echo 'error: required command not found: nix' >[1=2]
+  exit 127
+}
+
+nix run 'nixpkgs#nix-update' -- \
+  --flake \
+  --generate-lockfile \
+  --use-github-releases \
+  prime-agent

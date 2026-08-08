@@ -1,0 +1,69 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+for(tool in awk curl git jq nix perl) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+file=default.nix
+repo=https://github.com/pixelocdguy/windows-classic
+
+current=`{awk '
+  $1 == "rev" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+latest=`{git ls-remote $repo.git HEAD | awk 'NR == 1 { print $1 }'}
+
+if(! ~ $#current 1 || ! ~ $#latest 1) {
+  echo 'windows-classic-theme: could not determine the current or latest revision' >[1=2]
+  exit 1
+}
+
+short_current=`{printf %.7s $current}
+if(~ $current $latest) {
+  echo 'windows-classic-theme: current ('$short_current^')'
+  exit 0
+}
+
+latest_version=`{curl -fsSL https://api.github.com/repos/pixelocdguy/windows-classic/commits/$latest |
+  jq -r '.commit.committer.date[0:10]'}
+archive=$repo/archive/$latest.tar.gz
+hash=`{nix store prefetch-file --json --unpack $archive | jq -r .hash}
+current_version=`{awk '
+  $1 == "version" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+current_hash=`{awk '
+  $1 == "hash" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+
+if(! ~ $#latest_version 1 || ~ $latest_version null '' || ! ~ $#hash 1 ||
+   ~ $hash null '' || ! ~ $#current_version 1 || ! ~ $#current_hash 1) {
+  echo 'windows-classic-theme: could not determine the version or source hash' >[1=2]
+  exit 1
+}
+
+short_latest=`{printf %.7s $latest}
+echo 'windows-classic-theme: '$short_current' -> '$short_latest
+
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current_version $latest_version $file
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current $latest $file
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current_hash $hash $file
