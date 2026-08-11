@@ -9,26 +9,43 @@
 }:
 
 let
-  version = "0.0.0-next-17010";
+  version = "0.0.0-next-17132";
   artifacts = {
     "aarch64-darwin" = {
       artifact = "cli-darwin-arm64";
-      hash = "sha512-WcfRKo6FxPWR/KrV5xMt4De4ck2FrmvxEiBQGwZX7VpgVXD38g7rCcroW+s/Pdxw2YD/viQM2sPc8QB2FV0eqg==";
+      hash = "sha512-B22JGvF4NMZUZ7M1Nd1FANI6YGoMHjK9L467C5WE3+vmcl2U1L5h0vNE6k80HJnUZQcapPXPGsvCsK9g29WXzQ==";
     };
     "x86_64-darwin" = {
       artifact = "cli-darwin-x64-baseline";
-      hash = "sha512-su0IreYxzKJYMEl56rnP7ukm85+ErpoADv3fJyK/4XmjN0gamzP7xFwBsc0aDsMrDaPA7Pq9tjtCw9+kgyyPRw==";
+      hash = "sha512-xk7l/KCpEeS/6rzr3Nh/HQz3U8AMlWAgeDm+/s1zsqJWD4KmvIpAOXW2nzQDMooKEKRK+Ga456agCAKliNzKHA==";
     };
     "aarch64-linux" = {
       artifact = "cli-linux-arm64";
-      hash = "sha512-27h2rgYGC/dcl/5x7ftKVOXe+VYhkpQQBZq0KKm8KQxb66toxFw4JMGpwN0ltZrsxh+yrgxLCMNAfOEfNqDS+A==";
+      hash = "sha512-5D7F+R4t7k0vMWr9Wqj5l7OzW8YPKlJvPLmOyHk9F9GVxt2QuWk8Tj3AtS5RVDdYLxa8NfeM4RdFBXrMaAadRQ==";
     };
     "x86_64-linux" = {
       artifact = "cli-linux-x64";
-      hash = "sha512-KVBvkezDG1Sj0FurzHpnzZj7k0KCL52okCRsY4K835PrTWc68drKTded+Fj/UWT0yYZcfaa1EqZcUKEtitUIHA==";
+      hash = "sha512-iDmZjg1sYXknQxOWv8/gIEaHZ/cO98F5hVIHThHA/t2GpB+dds2R2E1nzYmKhw3a5j7iSv3U4etc9h8K42rXmQ==";
     };
   };
   inherit (artifacts.${stdenvNoCC.hostPlatform.system}) artifact hash;
+  wrapperArgs = [
+    "--prefix"
+    "PATH"
+    ":"
+    (lib.makeBinPath [ ripgrep ])
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
+    "--prefix"
+    "LD_LIBRARY_PATH"
+    ":"
+    (lib.makeLibraryPath [ stdenv.cc.cc.lib ])
+  ]
+  ++ [
+    "--set"
+    "OPENCODE_DISABLE_AUTOUPDATE"
+    "true"
+  ];
 in
 stdenvNoCC.mkDerivation {
   pname = "opencode-v2";
@@ -56,10 +73,7 @@ stdenvNoCC.mkDerivation {
     runHook preInstall
 
     install -Dm755 bin/opencode2 $out/bin/opencode2
-    wrapProgram $out/bin/opencode2 \
-      --prefix PATH : ${lib.makeBinPath [ ripgrep ]} \
-      ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ stdenv.cc.cc.lib ]}"} \
-      --set OPENCODE_DISABLE_AUTOUPDATE true
+    wrapProgram $out/bin/opencode2 ${lib.escapeShellArgs wrapperArgs}
     ln -s opencode2 $out/bin/opencode
 
     runHook postInstall
