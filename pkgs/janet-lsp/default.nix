@@ -19,4 +19,6 @@ in
     outPath = pkgs.path;
     inherit (pkgs) lib;
   };
-}).packages.${pkgs.stdenv.hostPlatform.system}.janet-lsp
+}).packages.${pkgs.stdenv.hostPlatform.system}.janet-lsp.overrideAttrs (old: {
+  checkPhase = builtins.replaceStrings [ "export TMPDIR=/tmp\n" ] [ "" ] old.checkPhase;
+})
