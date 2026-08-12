@@ -144,14 +144,29 @@ let
         port = mkOption {
           type = types.port;
           default = 8080;
-          description = "Port on which this celld instance listens.";
+          description = "Port on which this celld instance accepts public Worker traffic.";
+        };
+
+        internalListenAddress = mkOption {
+          type = types.str;
+          default = "127.0.0.1";
+          description = "Address on which this celld instance accepts peer and operator traffic.";
+        };
+
+        internalPort = mkOption {
+          type = types.port;
+          default = 0;
+          description = ''
+            Port on which this celld instance accepts peer and operator traffic.
+            The default selects an ephemeral port and is suitable for a single-node fleet.
+          '';
         };
 
         advertise = mkOption {
           type = types.nullOr types.str;
           default = null;
-          example = "node-a.internal:8080";
-          description = "Address that other nodes in this celld fleet can reach.";
+          example = "node-a.internal:8081";
+          description = "Internal listener address that other nodes in this celld fleet can reach.";
         };
 
         openFirewall = mkOption {
@@ -339,11 +354,14 @@ let
         ) deploymentOrder;
       };
       listen = "${formatAddress instance.listenAddress}:${toString instance.port}";
+      internalListen = "${formatAddress instance.internalListenAddress}:${toString instance.internalPort}";
       arguments = [
         "--bucket"
         bucket
         "--listen"
         listen
+        "--internal-listen"
+        internalListen
       ]
       ++ optionals (endpoint != null) [
         "--endpoint"
@@ -387,6 +405,10 @@ let
         {
           assertion = !hasProjects || primaryIsValid;
           message = "services.celld.instances.${name}.primaryProject must name a configured project";
+        }
+        {
+          assertion = instance.advertise == null || instance.internalPort != 0;
+          message = "services.celld.instances.${name}.internalPort must be set when advertise is configured";
         }
         {
           assertion = lib.all (
