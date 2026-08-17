@@ -16,7 +16,7 @@ let
   buildNpmPackage' = buildNpmPackage.override { nodejs = nodejs_22; };
   platform = if stdenv.hostPlatform.isDarwin then "darwin" else "linux";
   arch = if stdenv.hostPlatform.isAarch64 then "arm64" else "x64";
-  version = "0.7.1";
+  version = "0.7.2";
 in
 buildNpmPackage' {
   pname = "prime-agent";
@@ -24,7 +24,7 @@ buildNpmPackage' {
 
   src = fetchurl {
     url = "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v${version}/prime-agent-${version}.tgz";
-    hash = "sha256-1oYSyDI5yq+rcsx2xVrFcr/QegWeqPvSo92+HytV3Ns=";
+    hash = "sha256-vFRx8qYm1ye4ikXrdF//k7EMVUo8T8WRLyXYxkuYf14=";
   };
 
   sourceRoot = "package";
@@ -32,7 +32,7 @@ buildNpmPackage' {
     cp ${./package-lock.json} package-lock.json
   '';
 
-  npmDepsHash = "sha256-fcKq3jQ7MDLuuRcT0zHoZpxU0bGo4f8xX16vFX0iNZQ=";
+  npmDepsHash = "sha256-ugHe18fQUuG/XkBUzRyjVbPtrM6GAMVYWOnX5+Xxl6A=";
   dontNpmBuild = true;
 
   nativeBuildInputs = [
