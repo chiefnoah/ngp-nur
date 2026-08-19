@@ -12,6 +12,7 @@ This repository currently exports:
 - `celld`
 - `dnscontrol`
 - `foundryvtt_14_367`
+- `fx`
 - `janet-lsp`
 - `memphis98-icon-theme`
 - `opencode-v2`

@@ -25,6 +25,7 @@
   celld = pkgs.callPackage ./pkgs/celld { };
   dnscontrol = pkgs.callPackage ./pkgs/dnscontrol { };
   foundryvtt_14_367 = pkgs.callPackage ./pkgs/foundryvtt-14.367 { };
+  fx = pkgs.callPackage ./pkgs/fx { };
   janet-lsp = pkgs.callPackage ./pkgs/janet-lsp { inherit pkgs; };
   macos9-platinum-theme = pkgs.callPackage ./pkgs/macos9-platinum-theme { };
   memphis98-icon-theme = pkgs.callPackage ./pkgs/memphis98-icon-theme { };
