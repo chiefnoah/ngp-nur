@@ -11,6 +11,7 @@ This repository currently exports:
 - `chicago95-theme`
 - `celld`
 - `dnscontrol`
+- `foundryvtt_14_367`
 - `janet-lsp`
 - `memphis98-icon-theme`
 - `opencode-v2`
