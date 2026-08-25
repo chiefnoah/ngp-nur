@@ -16,7 +16,6 @@ This repository currently exports:
 - `janet-lsp`
 - `memphis98-icon-theme`
 - `opencode-v2`
-- `prime-agent`
 - `retro-5-classic98-openbox-theme`
 - `windows-classic-theme`
 - `windows98-lxqt-theme`
