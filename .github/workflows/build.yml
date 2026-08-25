@@ -60,6 +60,10 @@ jobs:
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - name: Check evaluation
+      # Unfree packages are filtered from builds by ci.nix,
+      # but must still evaluate here.
+      env:
+        NIXPKGS_ALLOW_UNFREE: 1
       run: |
         nix-env -f . -qa \* --meta --xml \
           --allowed-uris https://static.rust-lang.org \

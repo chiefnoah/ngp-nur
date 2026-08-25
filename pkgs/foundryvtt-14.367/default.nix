@@ -79,6 +79,10 @@ let
       find "$zstd" -type f -exec zstd -19 --rm {} +
       find "$brotli" -type f -exec brotli -9 --rm {} +
     '';
+
+    # Marked unfree so CI (ci.nix) filters it from builds;
+    # requires a purchased archive via requireFile.
+    meta.license = lib.licenses.unfree;
   };
 in
 application
