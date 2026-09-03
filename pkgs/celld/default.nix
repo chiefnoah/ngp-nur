@@ -9,15 +9,15 @@
 }:
 
 let
-  version = "0.3.0";
+  version = "0.4.0";
   artifacts = {
     "aarch64-linux" = {
       target = "aarch64-unknown-linux-gnu";
-      hash = "sha256-iKNQcBRECPkCA2B2t/iN84VIzk3aBz//J6bdH20rrig=";
+      hash = "sha256-2V7HEI0sKAFEWZcnrGYQbAEj0JxXP1ck07TTvDP3YD4=";
     };
     "x86_64-linux" = {
       target = "x86_64-unknown-linux-gnu";
-      hash = "sha256-y/z6X211UbUxb29MnXdRx0GpuiojBd3o1ctNGzf7NKY=";
+      hash = "sha256-BIhihZcVRyXbL2H4VDT7OB4bJTXR6fCXxtIHJ80zeXM=";
     };
   };
   inherit (artifacts.${stdenv.hostPlatform.system}) target hash;
