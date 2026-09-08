@@ -25,6 +25,7 @@
   bookorbit = pkgs.callPackage ./pkgs/bookorbit { };
   celld = pkgs.callPackage ./pkgs/celld { };
   dnscontrol = pkgs.callPackage ./pkgs/dnscontrol { };
+  dir2opds = pkgs.callPackage ./pkgs/dir2opds { };
   foundryvtt_14_367 = pkgs.callPackage ./pkgs/foundryvtt-14.367 { };
   fx = pkgs.callPackage ./pkgs/fx { };
   janet-lsp = pkgs.callPackage ./pkgs/janet-lsp { };

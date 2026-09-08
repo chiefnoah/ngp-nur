@@ -30,6 +30,9 @@
       checks.x86_64-linux.bookorbit =
         nixpkgs.legacyPackages.x86_64-linux.callPackage ./tests/bookorbit.nix
           { };
+      checks.x86_64-linux.dir2opds =
+        nixpkgs.legacyPackages.x86_64-linux.callPackage ./tests/dir2opds.nix
+          { };
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
       nixosModules = import ./nixos-modules;
       # homeModules = import ./home-modules;

@@ -10,6 +10,7 @@ This repository currently exports:
 
 - `chicago95-theme`
 - `celld`
+- `dir2opds`
 - `dnscontrol`
 - `foundryvtt_14_367`
 - `fx`
