@@ -22,6 +22,7 @@
   overlays = import ./overlays; # nixpkgs overlays
 
   chicago95-theme = pkgs.callPackage ./pkgs/chicago95-theme { };
+  bookorbit = pkgs.callPackage ./pkgs/bookorbit { };
   celld = pkgs.callPackage ./pkgs/celld { };
   dnscontrol = pkgs.callPackage ./pkgs/dnscontrol { };
   foundryvtt_14_367 = pkgs.callPackage ./pkgs/foundryvtt-14.367 { };

@@ -27,6 +27,9 @@
       packages = forAllSystems (
         system: nixpkgs.lib.filterAttrs (_: v: nixpkgs.lib.isDerivation v) self.legacyPackages.${system}
       );
+      checks.x86_64-linux.bookorbit =
+        nixpkgs.legacyPackages.x86_64-linux.callPackage ./tests/bookorbit.nix
+          { };
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
       nixosModules = import ./nixos-modules;
       # homeModules = import ./home-modules;
