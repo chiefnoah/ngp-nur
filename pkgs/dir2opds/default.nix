@@ -6,13 +6,13 @@
 
 buildGoModule {
   pname = "dir2opds";
-  version = "unstable-2026-09-08";
+  version = "0-unstable-2026-09-08";
 
   src = fetchFromGitHub {
     owner = "chiefnoah";
     repo = "dir2opds";
-    rev = "bb565b260470ed651ee36afa1131623d31a10779";
-    hash = "sha256-KXwhmlzBt+LwVGpJlghMpQ5aQOEAc+20LTn/zTYfklU=";
+    rev = "21ef6ded53d3f57404695e837dae10a8a11dd667";
+    hash = "sha256-SbMndcHZ1+lUjG1SMBIlB5Tr8OwRBiv7VKxGxz4tLEQ=";
   };
 
   vendorHash = "sha256-OdFSJrP44ir12dYiy4TwLuxKzOFwlTGbIszgqzVqvMw=";
