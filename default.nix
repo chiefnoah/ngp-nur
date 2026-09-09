@@ -37,6 +37,7 @@
   nixpkgs-search = pkgs.callPackage ./pkgs/nixpkgs-search { };
   opencode-v2 = pkgs.callPackage ./pkgs/opencode-v2 { };
   rcsh-language-server = pkgs.callPackage ./pkgs/rcsh-language-server { };
+  rust-glancer = pkgs.callPackage ./pkgs/rust-glancer { };
   tree-sitter-mk = pkgs.callPackage ./pkgs/tree-sitter-mk { };
   tree-sitter-rcsh = pkgs.callPackage ./pkgs/tree-sitter-rcsh { };
 }
