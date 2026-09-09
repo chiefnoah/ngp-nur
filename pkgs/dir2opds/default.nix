@@ -11,8 +11,8 @@ buildGoModule {
   src = fetchFromGitHub {
     owner = "chiefnoah";
     repo = "dir2opds";
-    rev = "ae8844e98591b4fd6df36b8d49785e11e2dab6c5";
-    hash = "sha256-yjqtILIDixtM4uzDdHpCbOfhOo+2cfPIFQbFJAW7ZXw=";
+    rev = "bd6a9a8ed69eea033fce51cce4cabad1bcf08103";
+    hash = "sha256-keIIQ+xhlz4JQPNdhMXPVmDukG4s++BPA7xwRR6bvzA=";
   };
 
   vendorHash = "sha256-OdFSJrP44ir12dYiy4TwLuxKzOFwlTGbIszgqzVqvMw=";
