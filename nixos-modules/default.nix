@@ -1,5 +1,4 @@
 {
-  bookorbit = ./bookorbit.nix;
   celld = ./celld.nix;
   dnscontrol = ./dnscontrol.nix;
   dir2opds = ./dir2opds.nix;
