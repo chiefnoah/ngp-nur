@@ -5,23 +5,23 @@
 }:
 
 let
-  version = "0.0.7";
+  version = "0.0.10";
   artifacts = {
     "aarch64-darwin" = {
       artifact = "macos-aarch64";
-      hash = "sha256-SXy6vFDFfs+B+K/+BCoH2TDAQYho52eyivraS93QV0g=";
+      hash = "sha256-s/ASHkb4InaQ3vcrkg2dH8KZ8Lc91+uROCvYNnQhmHY=";
     };
     "aarch64-linux" = {
       artifact = "linux-aarch64";
-      hash = "sha256-Sj+xsBFLik+TPeZPhfsiiAlcF2MaDDyol6oFYB0EmXQ=";
+      hash = "sha256-JxNPrbl+mOXIRwcPlsIR2hsr/Jur9Vc7qnU3KCNi+9g=";
     };
     "x86_64-darwin" = {
       artifact = "macos-x86_64";
-      hash = "sha256-xFfk70H7z8tncYugeiH14AQYKVEn+ZmA6ozjjZVd1UY=";
+      hash = "sha256-DdAbrfZtG4oP5Tjp/V5Cs7Tcr9aqkyfum5YRo9Adbhg=";
     };
     "x86_64-linux" = {
       artifact = "linux-x86_64";
-      hash = "sha256-xXh+oEHTtVIexnXxraePMM8bEQIf/KxItJac9b62XEU=";
+      hash = "sha256-Rb9NiOeG9UkDmhDOFAKDG5k35xaVam75BaDTy+a9l68=";
     };
   };
   inherit (artifacts.${stdenvNoCC.hostPlatform.system}) artifact hash;
