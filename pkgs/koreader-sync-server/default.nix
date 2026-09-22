@@ -71,6 +71,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     worker_processes auto;
     pid /run/koreader-sync-server/nginx.pid;
     error_log /run/koreader-sync-server/error.log notice;
+    env ENABLE_USER_REGISTRATION;
+    env KOSYNC_REDIS_PORT;
 
     events { worker_connections 1024; }
 

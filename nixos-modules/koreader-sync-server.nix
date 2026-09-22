@@ -34,6 +34,12 @@ in
       description = "Existing Redis port. A dedicated Redis instance starts when unset.";
     };
 
+    enableUserRegistration = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Allow KOReader clients to create accounts.";
+    };
+
     openFirewall = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -56,6 +62,7 @@ in
       after = lib.optional useLocalRedis "redis-koreader-sync-server.service";
       requires = lib.optional useLocalRedis "redis-koreader-sync-server.service";
       environment = {
+        ENABLE_USER_REGISTRATION = lib.boolToString cfg.enableUserRegistration;
         KOSYNC_PORT = toString cfg.port;
         KOSYNC_REDIS_PORT = toString redisPort;
       };
