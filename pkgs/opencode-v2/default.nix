@@ -9,23 +9,23 @@
 }:
 
 let
-  version = "1.18.18";
+  version = "0.0.0-beta-17823";
   artifacts = {
     "aarch64-darwin" = {
       artifact = "cli-darwin-arm64";
-      hash = "sha512-1d5rC8+rMnsWNwSGyz3R+ePspoEYF6SB+HA9QcUDfdcYVyTR9wHXIqhbQ+87tfQZjxah4jtz+bi1E4+OIaC4bw==";
+      hash = "sha512-10vuMRIVxzOw/wy/ikyOQbjotPSAGsV95S1YMqy+BFRPSlvAcppBjXGRbguPsqctsIniRh/rQkJMbjLLK83hQA==";
     };
     "x86_64-darwin" = {
       artifact = "cli-darwin-x64-baseline";
-      hash = "sha512-Hf2CE62IkxRq3GK2NbXxET5bqspkrhdK9ffhUH9UWs8f6/qTzxvddf56Q2L8yPbMxf62EDqmDqrHxCr5jolJ2w==";
+      hash = "sha512-ayPWh0Pl0Y1edDuKtl1aarxUHvnY1yVhxAZWcZcUh86fTpORHJoZQx5g6HcaCw69OBjdgXX4moBevnsIEuFYpQ==";
     };
     "aarch64-linux" = {
       artifact = "cli-linux-arm64";
-      hash = "sha512-CIW9SwMT4hSLd/ZCp5JPaeE05kW2vm6lPBMLMm3pPsoc/cwqCCs/QTy5OXCQpGi0LqIsqpVlI1dnhGHZtHMYLg==";
+      hash = "sha512-nZ6HkT0qL0mSB7nW57hIxaf3KdxAGyWeeoLHDCbxlpQMYcpFiqDYNc5nl/xKDdsJ8lPHSMQTUy1fdeOqMphYyA==";
     };
     "x86_64-linux" = {
       artifact = "cli-linux-x64";
-      hash = "sha512-usr/Go+SojmnqXMu0TeDbPqCZgCTUEKsvfg/AXvJxiGydIDD5ZViIqly9uh7nVI6qWoLhTCeiZlnHn/YeXaTBg==";
+      hash = "sha512-D5KP6uIWLjbdY6TmPEYZqbBmOgqg7i76O+KwM566JRPVNUxYRfvA/OhR9g7Iz6HOQZqU/fWMJa+1E0irteImwg==";
     };
   };
   inherit (artifacts.${stdenvNoCC.hostPlatform.system}) artifact hash;
@@ -48,7 +48,7 @@ let
   ];
 in
 stdenvNoCC.mkDerivation {
-  pname = "opencode";
+  pname = "opencode-v2";
   inherit version;
 
   src = fetchurl {
@@ -72,8 +72,9 @@ stdenvNoCC.mkDerivation {
   installPhase = ''
     runHook preInstall
 
-    install -Dm755 bin/lildax $out/bin/opencode
-    wrapProgram $out/bin/opencode ${lib.escapeShellArgs wrapperArgs}
+    install -Dm755 bin/opencode2 $out/bin/opencode2
+    wrapProgram $out/bin/opencode2 ${lib.escapeShellArgs wrapperArgs}
+    ln -s opencode2 $out/bin/opencode
 
     runHook postInstall
   '';
@@ -91,7 +92,7 @@ stdenvNoCC.mkDerivation {
   '';
 
   meta = {
-    description = "OpenCode AI coding agent";
+    description = "OpenCode 2.0 beta";
     homepage = "https://opencode.ai";
     license = lib.licenses.mit;
     mainProgram = "opencode";
