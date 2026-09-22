@@ -8,18 +8,8 @@ let
   cfg = config.services.koreader-sync-server;
   package = pkgs.callPackage ../pkgs/koreader-sync-server { };
   localRedisPort = 6378;
-  redisServers = lib.filterAttrs (
-    name: server:
-    name != "koreader-sync-server"
-    && server.enable
-    && server.port != 0
-    && server.requirePass == null
-    && server.requirePassFile == null
-  ) config.services.redis.servers;
-  redisServer = lib.head (lib.attrValues redisServers ++ [ null ]);
-  useLocalRedis = cfg.redisPort == null && redisServer == null;
-  redisPort =
-    if cfg.redisPort != null then cfg.redisPort else if redisServer != null then redisServer.port else localRedisPort;
+  useLocalRedis = cfg.redisPort == null;
+  redisPort = if cfg.redisPort != null then cfg.redisPort else localRedisPort;
 in
 {
   options.services.koreader-sync-server = {
@@ -41,7 +31,7 @@ in
     redisPort = lib.mkOption {
       type = lib.types.nullOr lib.types.port;
       default = null;
-      description = "Redis port. Uses an existing unauthenticated TCP Redis instance when available.";
+      description = "Existing Redis port. A dedicated Redis instance starts when unset.";
     };
 
     openFirewall = lib.mkOption {
