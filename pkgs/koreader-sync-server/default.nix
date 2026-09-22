@@ -1,7 +1,7 @@
 {
   fetchFromGitHub,
+  gnused,
   lib,
-  makeWrapper,
   openresty,
   stdenvNoCC,
 }:
@@ -25,8 +25,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   };
 
   dontBuild = true;
-
-  nativeBuildInputs = [ makeWrapper ];
 
   installPhase = ''
     runHook preInstall
@@ -56,10 +54,18 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       --replace-fail "package.path = './app/controllers/?.lua;' .. package.path" \
         "package.path = '$out/share/koreader-sync-server/app/controllers/?.lua;' .. package.path"
 
-    makeWrapper ${openresty}/bin/openresty $out/bin/koreader-sync-server \
-      --add-flags "-g 'daemon off;'" \
-      --add-flags "-p /run/koreader-sync-server" \
-      --add-flags "-c $out/share/koreader-sync-server/nginx.conf"
+    mkdir -p $out/bin
+    cat > $out/bin/koreader-sync-server <<EOF
+    #!${stdenvNoCC.shell}
+    set -eu
+
+    runtime_dir=/run/koreader-sync-server
+    ${gnused}/bin/sed "s/@KOSYNC_PORT@/\$KOSYNC_PORT/" \
+      $out/share/koreader-sync-server/nginx.conf > "\$runtime_dir/nginx.conf"
+
+    exec ${openresty}/bin/openresty -g 'daemon off;' -p "\$runtime_dir" -c "\$runtime_dir/nginx.conf"
+    EOF
+    chmod +x $out/bin/koreader-sync-server
 
     cat > $out/share/koreader-sync-server/nginx.conf <<EOF
     worker_processes auto;
@@ -72,7 +78,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       lua_package_path "$out/share/koreader-sync-server/?.lua;$out/share/koreader-sync-server/lib/?.lua;;";
 
       server {
-        listen 127.0.0.1:\$KOSYNC_PORT;
+        listen 127.0.0.1:@KOSYNC_PORT@;
 
         location / {
           content_by_lua 'require("gin.core.router").handler(ngx)';
