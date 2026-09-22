@@ -70,12 +70,12 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     cat > $out/share/koreader-sync-server/nginx.conf <<EOF
     worker_processes auto;
     pid /run/koreader-sync-server/nginx.pid;
-    error_log stderr notice;
+    error_log /run/koreader-sync-server/error.log notice;
 
     events { worker_connections 1024; }
 
     http {
-      access_log /dev/stdout;
+      access_log off;
       lua_code_cache on;
       lua_package_path "$out/share/koreader-sync-server/?.lua;$out/share/koreader-sync-server/lib/?.lua;;";
 
