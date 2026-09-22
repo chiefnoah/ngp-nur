@@ -7,6 +7,19 @@
 let
   cfg = config.services.koreader-sync-server;
   package = pkgs.callPackage ../pkgs/koreader-sync-server { };
+  localRedisPort = 6378;
+  redisServers = lib.filterAttrs (
+    name: server:
+    name != "koreader-sync-server"
+    && server.enable
+    && server.port != 0
+    && server.requirePass == null
+    && server.requirePassFile == null
+  ) config.services.redis.servers;
+  redisServer = lib.head (lib.attrValues redisServers ++ [ null ]);
+  useLocalRedis = cfg.redisPort == null && redisServer == null;
+  redisPort =
+    if cfg.redisPort != null then cfg.redisPort else if redisServer != null then redisServer.port else localRedisPort;
 in
 {
   options.services.koreader-sync-server = {
@@ -26,9 +39,9 @@ in
     };
 
     redisPort = lib.mkOption {
-      type = lib.types.port;
-      default = 6378;
-      description = "Loopback TCP port for the dedicated Redis instance.";
+      type = lib.types.nullOr lib.types.port;
+      default = null;
+      description = "Redis port. Uses an existing unauthenticated TCP Redis instance when available.";
     };
 
     openFirewall = lib.mkOption {
@@ -39,9 +52,9 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.redis.servers.koreader-sync-server = {
+    services.redis.servers.koreader-sync-server = lib.mkIf useLocalRedis {
       enable = true;
-      port = cfg.redisPort;
+      port = localRedisPort;
       appendOnly = true;
       settings.bind = "127.0.0.1";
     };
@@ -50,11 +63,11 @@ in
       description = "KOReader synchronization server";
       documentation = [ "https://github.com/koreader/koreader-sync-server" ];
       wantedBy = [ "multi-user.target" ];
-      after = [ "redis-koreader-sync-server.service" ];
-      requires = [ "redis-koreader-sync-server.service" ];
+      after = lib.optional useLocalRedis "redis-koreader-sync-server.service";
+      requires = lib.optional useLocalRedis "redis-koreader-sync-server.service";
       environment = {
         KOSYNC_PORT = toString cfg.port;
-        KOSYNC_REDIS_PORT = toString cfg.redisPort;
+        KOSYNC_REDIS_PORT = toString redisPort;
       };
       serviceConfig = {
         ExecStart = lib.getExe cfg.package;
