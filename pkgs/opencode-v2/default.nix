@@ -9,23 +9,23 @@
 }:
 
 let
-  version = "0.0.0-beta-17823";
+  version = "2.0.14";
   artifacts = {
     "aarch64-darwin" = {
       artifact = "cli-darwin-arm64";
-      hash = "sha512-10vuMRIVxzOw/wy/ikyOQbjotPSAGsV95S1YMqy+BFRPSlvAcppBjXGRbguPsqctsIniRh/rQkJMbjLLK83hQA==";
+      hash = "sha512-rAv4hutXUkS3/kBiw2bYuokXYPKOBuck8D39eAMY3FDsUt5AWgM4X7wW/2dKhz6BgVwc1rgWio5MDYrfvS5png==";
     };
     "x86_64-darwin" = {
       artifact = "cli-darwin-x64-baseline";
-      hash = "sha512-ayPWh0Pl0Y1edDuKtl1aarxUHvnY1yVhxAZWcZcUh86fTpORHJoZQx5g6HcaCw69OBjdgXX4moBevnsIEuFYpQ==";
+      hash = "sha512-zouKRwlYb0/92G35D6iDWKOb7PoB/nmCL5Oql63CH5PYEq2XwE/AXb1mP7s7TAi26xtCDrl36P/wwJw3GQ5luQ==";
     };
     "aarch64-linux" = {
       artifact = "cli-linux-arm64";
-      hash = "sha512-nZ6HkT0qL0mSB7nW57hIxaf3KdxAGyWeeoLHDCbxlpQMYcpFiqDYNc5nl/xKDdsJ8lPHSMQTUy1fdeOqMphYyA==";
+      hash = "sha512-wlTLi73Yj3ms7/OrPjF+3dwWz80sFkYSZvOvsU1uYKF5kzA7MCwCYgRZrQudRw9RQZeKt90uVI0fRtBdIPN+dw==";
     };
     "x86_64-linux" = {
       artifact = "cli-linux-x64";
-      hash = "sha512-D5KP6uIWLjbdY6TmPEYZqbBmOgqg7i76O+KwM566JRPVNUxYRfvA/OhR9g7Iz6HOQZqU/fWMJa+1E0irteImwg==";
+      hash = "sha512-YFGnck40hBmD8S785zHi1sCZMVodoyxy615SrEo+YXJj/i92I8ViETodsY6Yde0H0VJk/ZuLu8mrllOA4wbAlQ==";
     };
   };
   inherit (artifacts.${stdenvNoCC.hostPlatform.system}) artifact hash;
@@ -52,7 +52,7 @@ stdenvNoCC.mkDerivation {
   inherit version;
 
   src = fetchurl {
-    url = "https://registry.npmjs.org/@opencode-ai/${artifact}/-/${artifact}-${version}.tgz";
+    url = "https://registry.npmjs.org/@opencode/${artifact}/-/${artifact}-${version}.tgz";
     inherit hash;
   };
 
@@ -72,9 +72,8 @@ stdenvNoCC.mkDerivation {
   installPhase = ''
     runHook preInstall
 
-    install -Dm755 bin/opencode2 $out/bin/opencode2
-    wrapProgram $out/bin/opencode2 ${lib.escapeShellArgs wrapperArgs}
-    ln -s opencode2 $out/bin/opencode
+    install -Dm755 bin/opencode $out/bin/opencode
+    wrapProgram $out/bin/opencode ${lib.escapeShellArgs wrapperArgs}
 
     runHook postInstall
   '';
@@ -92,7 +91,7 @@ stdenvNoCC.mkDerivation {
   '';
 
   meta = {
-    description = "OpenCode 2.0 beta";
+    description = "OpenCode 2.0";
     homepage = "https://opencode.ai";
     license = lib.licenses.mit;
     mainProgram = "opencode";
