@@ -63,7 +63,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     ${gnused}/bin/sed "s/@KOSYNC_PORT@/\$KOSYNC_PORT/" \
       $out/share/koreader-sync-server/nginx.conf > "\$runtime_dir/nginx.conf"
 
-    exec ${openresty}/bin/openresty -g 'daemon off;' -p "\$runtime_dir" -c "\$runtime_dir/nginx.conf"
+    exec ${openresty}/bin/openresty -e "\$runtime_dir/error.log" -g 'daemon off;' -p "\$runtime_dir" -c "\$runtime_dir/nginx.conf"
     EOF
     chmod +x $out/bin/koreader-sync-server
 
