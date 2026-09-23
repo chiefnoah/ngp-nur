@@ -11,7 +11,7 @@ for command in jq npm perl sed; do
 done
 
 file=default.nix
-current="$(sed -nE 's/^[[:space:]]*version = "([^"]+)";/\1/p' "$file")"
+current="$(sed -n 's/^[[:space:]]*version = "\([^"]*\)";/\1/p' "$file")"
 latest="$(npm view '@opencode-ai/cli@next' version --json | jq -r '.')"
 
 if [[ -z "$latest" || "$latest" == null ]]; then
@@ -29,7 +29,7 @@ OLD="version = \"$current\";" NEW="version = \"$latest\";" \
   perl -0pi -e 's/\Q$ENV{OLD}\E/$ENV{NEW}/g' "$file"
 
 while IFS=' ' read -r system artifact; do
-  old_hash="$(sed -nE "/\"$system\" = \{/,/\};/ s/^[[:space:]]*hash = \"([^\"]+)\";/\1/p" "$file")"
+  old_hash="$(sed -n "/\"$system\" = {/,/};/ s/^[[:space:]]*hash = \"\([^\"]*\)\";/\1/p" "$file")"
   new_hash="$(npm view "@opencode-ai/$artifact@$latest" dist.integrity --json | jq -r '.')"
   if [[ -z "$old_hash" || -z "$new_hash" || "$new_hash" == null ]]; then
     echo "opencode-v2: could not update the hash for $system" >&2
