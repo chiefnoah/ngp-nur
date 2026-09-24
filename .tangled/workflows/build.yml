@@ -12,11 +12,14 @@ dependencies:
   nixpkgs:
     - nix
     - curl
+    - python3
 
 environment:
   NIX_CONFIG: "experimental-features = nix-command flakes"
 
 steps:
+  - name: "Register Nixery store paths"
+    command: "python3 scripts/ci-register-nixery.py"
   - name: "Evaluate and build packages"
     command: "bash scripts/ci-build.sh"
   - name: "Upload to Misaki"
