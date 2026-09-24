@@ -1,0 +1,25 @@
+when:
+  - event: ["push"]
+    branch: ["main", "master"]
+  - event: ["schedule"]
+    schedule:
+      - cron: "51 2 * * *"
+  - event: ["manual"]
+
+engine: "nixery"
+
+dependencies:
+  nixpkgs:
+    - nix
+    - curl
+
+environment:
+  NIX_CONFIG: "experimental-features = nix-command flakes"
+
+steps:
+  - name: "Evaluate and build packages"
+    command: "bash scripts/ci-build.sh"
+  - name: "Upload to Misaki"
+    command: "bash scripts/ci-upload.sh"
+  - name: "Trigger NUR update"
+    command: 'curl -fsS -X POST "https://nur-update.nix-community.org/update?repo=chiefnoah"'

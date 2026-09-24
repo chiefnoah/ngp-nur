@@ -2,8 +2,6 @@
 
 **chiefnoah's [NUR](https://github.com/nix-community/NUR) package repository.**
 
-![Build and populate cache](https://github.com/chiefnoah/ngp-nur/workflows/Build%20and%20populate%20cache/badge.svg)
-
 ## Packages
 
 This repository currently exports:
@@ -216,6 +214,23 @@ Build cacheable outputs locally:
 ```console
 nix-build ci.nix -A cacheOutputs
 ```
+
+## Spindle cache uploads
+
+The Spindle build uploads `ci.nix` outputs to Misaki's NCPS cache over HTTPS.
+The same cache serves those paths at `https://cache.ngp.computer`.
+
+Set `NIX_CACHE_PUSH_PASSWORD` as a Tangled repository secret before the first
+build. Use the `ci` account password from
+`/tmp/opencode/nix-cache-push-password`. Remove that local file after you save
+the secret in Tangled.
+
+Deploy the Misaki configuration from `~/repos/nixos` before you run this
+workflow. Its `nix-cache-push.age` file holds the hashed Basic auth password.
+
+Spindle passes repository secrets to every workflow step. This workflow runs
+on pushes, schedules, and manual requests; it does not run on pull requests.
+Odin's Spindle workflow timeout is two hours for the three nixpkgs builds.
 
 ## Registering With NUR
 
