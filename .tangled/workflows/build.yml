@@ -24,5 +24,6 @@ steps:
     command: "bash scripts/ci-build.sh"
   - name: "Upload to Misaki"
     command: "bash scripts/ci-upload.sh"
-  - name: "Trigger NUR update"
-    command: 'curl -fsS -X POST "https://nur-update.nix-community.org/update?repo=chiefnoah"'
+  # Disabled as we have not been merged into the NUR community repo yet
+  #- name: "Trigger NUR update"
+  #  command: 'curl -fsS -X POST "https://nur-update.nix-community.org/update?repo=chiefnoah"'
