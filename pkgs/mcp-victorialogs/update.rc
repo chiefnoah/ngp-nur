@@ -1,0 +1,67 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+for(tool in awk curl jq nix perl seq) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+file=default.nix
+repo=https://github.com/VictoriaMetrics/mcp-victorialogs
+
+current=`{awk '
+  $1 == "version" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+latest=`{curl -fsSL https://api.github.com/repos/VictoriaMetrics/mcp-victorialogs/releases/latest |
+  jq -r '.tag_name | sub("^v"; "")'}
+
+if(! ~ $#current 1 || ! ~ $#latest 1 || ~ $latest null '') {
+  echo 'mcp-victorialogs: could not determine the current or latest version' >[1=2]
+  exit 1
+}
+
+if(~ $current $latest) {
+  echo 'mcp-victorialogs: current ('$current')'
+  exit 0
+}
+
+current_hashes=`{awk '
+  $1 == "hash" {
+    gsub(/[";]/, "", $3)
+    print $3
+  }
+' $file}
+artifacts=(arm64 x86_64)
+
+if(! ~ $#current_hashes $#artifacts) {
+  echo 'mcp-victorialogs: could not determine the current artifact hashes' >[1=2]
+  exit 1
+}
+
+hashes=()
+for(arch in $artifacts) {
+  url=$repo/releases/download/v$latest/mcp-victorialogs_Linux_$arch.tar.gz
+  hash=`{nix store prefetch-file --json $url | jq -r .hash}
+  if(! ~ $#hash 1 || ~ $hash null '') {
+    echo 'mcp-victorialogs: could not determine the '$arch' artifact hash' >[1=2]
+    exit 1
+  }
+  hashes=($hashes $hash)
+}
+
+echo 'mcp-victorialogs: '$current' -> '$latest
+
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current $latest $file
+for(i in `{seq 2}) {
+  perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+    $current_hashes($i) $hashes($i) $file
+}

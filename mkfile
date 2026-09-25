@@ -5,6 +5,8 @@ update:V:
 	./pkgs/dir2opds/update.rc &
 	./pkgs/fx/update.rc &
 	./pkgs/janet-lsp/update.rc &
+	./pkgs/mcp-victorialogs/update.rc &
+	./pkgs/mcp-victoriatraces/update.rc &
 	./pkgs/rcsh-language-server/update.rc &
 	./pkgs/rust-glancer/update.rc &
 	./pkgs/tree-sitter-mk/update.rc &

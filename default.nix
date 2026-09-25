@@ -31,6 +31,8 @@
   janet-lsp = pkgs.callPackage ./pkgs/janet-lsp { };
   macos9-platinum-theme = pkgs.callPackage ./pkgs/macos9-platinum-theme { };
   memphis98-icon-theme = pkgs.callPackage ./pkgs/memphis98-icon-theme { };
+  mcp-victorialogs = pkgs.callPackage ./pkgs/mcp-victorialogs { };
+  mcp-victoriatraces = pkgs.callPackage ./pkgs/mcp-victoriatraces { };
   retro-5-classic98-openbox-theme = pkgs.callPackage ./pkgs/retro-5-classic98-openbox-theme { };
   windows-classic-theme = pkgs.callPackage ./pkgs/windows-classic-theme { };
   windows98-lxqt-theme = pkgs.callPackage ./pkgs/windows98-lxqt-theme { };
