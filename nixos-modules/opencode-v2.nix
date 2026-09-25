@@ -67,6 +67,12 @@ in
       description = "OpenCode configuration file for the service.";
     };
 
+    extraPackages = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      default = [ ];
+      description = "Packages added to the OpenCode service PATH.";
+    };
+
     hostname = lib.mkOption {
       type = lib.types.str;
       default = "127.0.0.1";
@@ -124,11 +130,13 @@ in
       wantedBy = [ "multi-user.target" ];
       wants = [ "network-online.target" ];
       after = [ "network-online.target" ];
-      environment = lib.optionalAttrs (cfg.password != null) {
-        OPENCODE_SERVER_PASSWORD = cfg.password;
-      } // lib.optionalAttrs (cfg.configFile != null) {
-        OPENCODE_CONFIG = toString cfg.configFile;
-      };
+      environment =
+        lib.optionalAttrs (cfg.password != null) {
+          OPENCODE_SERVER_PASSWORD = cfg.password;
+        }
+        // lib.optionalAttrs (cfg.configFile != null) {
+          OPENCODE_CONFIG = toString cfg.configFile;
+        };
       serviceConfig = {
         ExecStart = if cfg.passwordFile == null then command else startWithPassword;
         User = cfg.user;
@@ -140,6 +148,7 @@ in
         UMask = "0077";
         NoNewPrivileges = true;
       };
+      path = cfg.extraPackages;
     };
 
     users.users.opencode-v2 = lib.mkIf (cfg.user == "opencode-v2") {
