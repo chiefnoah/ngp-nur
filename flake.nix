@@ -1,8 +1,16 @@
 {
   description = "chiefnoah's NUR package repository";
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.pre-commit-hooks = {
+    url = "github:cachix/git-hooks.nix";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
   outputs =
-    { self, nixpkgs }:
+    {
+      self,
+      nixpkgs,
+      pre-commit-hooks,
+    }:
     let
       forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
     in
@@ -14,7 +22,8 @@
         in
         {
           default = pkgs.mkShell {
-            packages = [ pkgs.rc ];
+            inherit (self.checks.${system}.pre-commit-check) shellHook;
+            packages = [ pkgs.rc ] ++ self.checks.${system}.pre-commit-check.enabledPackages;
           };
         }
       );
@@ -27,9 +36,26 @@
       packages = forAllSystems (
         system: nixpkgs.lib.filterAttrs (_: v: nixpkgs.lib.isDerivation v) self.legacyPackages.${system}
       );
-      checks.x86_64-linux.dir2opds =
-        nixpkgs.legacyPackages.x86_64-linux.callPackage ./tests/dir2opds.nix
-          { };
+      checks = forAllSystems (
+        system:
+        {
+          pre-commit-check = pre-commit-hooks.lib.${system}.run {
+            src = ./.;
+            hooks = {
+              check-merge-conflicts.enable = true;
+              check-json.enable = true;
+              deadnix.enable = true;
+              end-of-file-fixer.enable = true;
+              nixfmt.enable = true;
+              statix.enable = true;
+              trim-trailing-whitespace.enable = true;
+            };
+          };
+        }
+        // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          dir2opds = nixpkgs.legacyPackages.x86_64-linux.callPackage ./tests/dir2opds.nix { };
+        }
+      );
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
       nixosModules = import ./nixos-modules;
       # homeModules = import ./home-modules;
