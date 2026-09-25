@@ -61,6 +61,12 @@ in
       description = "Existing directory from which OpenCode serves projects. The service user needs access to it.";
     };
 
+    configFile = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      description = "OpenCode configuration file for the service.";
+    };
+
     hostname = lib.mkOption {
       type = lib.types.str;
       default = "127.0.0.1";
@@ -120,6 +126,8 @@ in
       after = [ "network-online.target" ];
       environment = lib.optionalAttrs (cfg.password != null) {
         OPENCODE_SERVER_PASSWORD = cfg.password;
+      } // lib.optionalAttrs (cfg.configFile != null) {
+        OPENCODE_CONFIG = toString cfg.configFile;
       };
       serviceConfig = {
         ExecStart = if cfg.passwordFile == null then command else startWithPassword;
