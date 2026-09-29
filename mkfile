@@ -11,5 +11,5 @@ update:V:
 	./pkgs/rust-glancer/update.rc &
 	./pkgs/tree-sitter-mk/update.rc &
 	./pkgs/tree-sitter-rcsh/update.rc &
-	./pkgs/opencode-v2/update.sh &
+	./pkgs/opencode-v2/update.rc &
 	wait

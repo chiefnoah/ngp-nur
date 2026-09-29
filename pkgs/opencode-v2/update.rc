@@ -1,0 +1,67 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+for(tool in awk jq npm perl seq) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+file=default.nix
+current=`{awk '
+  $1 == "version" {
+    gsub(/[";]/, "", $3)
+    print $3
+    exit
+  }
+' $file}
+latest=`{npm view '@opencode/cli-darwin-arm64@latest' version --json | jq -r .}
+
+if(! ~ $#current 1 || ! ~ $#latest 1 || ~ $latest null '') {
+  echo 'opencode-v2: could not determine the current or latest version' >[1=2]
+  exit 1
+}
+
+if(~ $current $latest) {
+  echo 'opencode-v2: current ('$current')'
+  exit 0
+}
+
+current_hashes=`{awk '
+  $1 == "hash" {
+    gsub(/[";]/, "", $3)
+    print $3
+  }
+' $file}
+artifacts=(cli-darwin-arm64 cli-darwin-x64-baseline cli-linux-arm64 cli-linux-x64)
+
+if(! ~ $#current_hashes $#artifacts) {
+  echo 'opencode-v2: could not determine the current artifact hashes' >[1=2]
+  exit 1
+}
+
+hashes=()
+for(artifact in $artifacts) {
+  package='@opencode/'^$artifact^'@'^$latest
+  metadata=`{npm view $package version dist.integrity --json}
+  package_version=`{echo $metadata | jq -r .version}
+  hash=`{echo $metadata | jq -r '."dist.integrity"'}
+  if(! ~ $#package_version 1 || ! ~ $package_version $latest ||
+     ! ~ $#hash 1 || ~ $hash null '') {
+    echo 'opencode-v2: could not update the hash for '$artifact >[1=2]
+    exit 1
+  }
+  hashes=($hashes $hash)
+}
+
+echo 'opencode-v2: '$current' -> '$latest
+
+perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+  $current $latest $file
+for(i in `{seq $#artifacts}) {
+  perl -0pi -e 'BEGIN { $old = shift; $new = shift } s/\Q$old\E/$new/g' \
+    $current_hashes($i) $hashes($i) $file
+}
