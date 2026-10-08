@@ -1,0 +1,40 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}^/../..
+
+for(tool in awk mktemp nix perl) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+file=pkgs/tranquil-pds/default.nix
+log=`{mktemp}
+nix flake update tranquil-pds
+
+# Force a hash mismatch to get the hash for the updated input.
+if(nix build --impure --no-link -L --expr '
+  let
+    flake = builtins.getFlake ("path:" + toString ./.);
+    package = flake.packages.${builtins.currentSystem}.tranquil-pds;
+  in package.cargoDeps.vendorStaging.overrideAttrs (_: {
+    outputHash = flake.inputs.nixpkgs.lib.fakeHash;
+  })
+' > $log >[2=1]) {
+  echo 'tranquil-pds: expected a hash mismatch' >[1=2]
+  rm $log
+  exit 1
+}
+
+hash=`{awk '/got: *sha256-/ { print $2 }' $log}
+if(! ~ $#hash 1) {
+  cat $log >[1=2]
+  rm $log
+  exit 1
+}
+rm $log
+
+perl -0pi -e 'BEGIN { $hash = shift } s/cargoHash = "[^"]+"/cargoHash = "$hash"/' $hash $file
+nix build path:.#checks.^`{nix eval --impure --raw --expr builtins.currentSystem}^.tranquil-pds-vendor --no-link

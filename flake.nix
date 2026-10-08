@@ -1,15 +1,22 @@
 {
   description = "chiefnoah's NUR package repository";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-  inputs.pre-commit-hooks = {
-    url = "github:cachix/git-hooks.nix";
-    inputs.nixpkgs.follows = "nixpkgs";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    tranquil-pds = {
+      url = "git+https://tangled.org/tranquil.farm/tranquil-pds";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    pre-commit-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs =
     {
       self,
       nixpkgs,
       pre-commit-hooks,
+      tranquil-pds,
     }:
     let
       forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
@@ -31,6 +38,7 @@
         system:
         import ./default.nix {
           pkgs = import nixpkgs { inherit system; };
+          tranquil-pds = tranquil-pds.packages.${system}.tranquil-pds;
         }
       );
       packages = forAllSystems (
@@ -39,6 +47,7 @@
       checks = forAllSystems (
         system:
         {
+          tranquil-pds-vendor = self.packages.${system}.tranquil-pds.cargoDeps;
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
             src = ./.;
             hooks = {

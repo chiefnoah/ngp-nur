@@ -9,6 +9,7 @@
 
 {
   pkgs ? import <nixpkgs> { },
+  tranquil-pds ? pkgs.tranquil-pds,
 }:
 
 {
@@ -42,4 +43,5 @@
   rust-glancer = pkgs.callPackage ./pkgs/rust-glancer { };
   tree-sitter-mk = pkgs.callPackage ./pkgs/tree-sitter-mk { };
   tree-sitter-rcsh = pkgs.callPackage ./pkgs/tree-sitter-rcsh { };
+  tranquil-pds = pkgs.callPackage ./pkgs/tranquil-pds { upstream = tranquil-pds; };
 }
