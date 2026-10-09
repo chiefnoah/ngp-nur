@@ -6,16 +6,16 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "rust-glancer";
-  version = "0.2.0";
+  version = "0.3.0";
 
   src = fetchFromGitHub {
     owner = "rust-glancer";
     repo = "rust-glancer";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-3oQpIUsBnYL8dt/wUCHsHcK9/kwJxNlSAw8jbkLf6XY=";
+    hash = "sha256-3CdKyRsKbMfPBZ2UXgRmj+sKhQMl5GRuT7Pc2VkJpzs=";
   };
 
-  cargoHash = "sha256-snH6iK+hQgnqc24Z7xXmg457mf5R+ujdc4PGgOXK7Vs=";
+  cargoHash = "sha256-88gs9H8HgK8n/Qx2nncJQ/FQEiSmk+7HK8iCxzM+1bA=";
   cargoBuildFlags = [ "--package=rust-glancer" ];
   cargoTestFlags = [ "--package=rust-glancer" ];
 
