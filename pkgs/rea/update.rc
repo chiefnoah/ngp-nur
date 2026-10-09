@@ -1,0 +1,54 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+for(tool in awk curl jq mktemp nix npm perl tar) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+file=default.nix
+registry=https://registry.npmjs.org/rea-agents
+current=`{awk '$1 == "version" { gsub(/[";]/, "", $3); print $3; exit }' $file}
+latest=`{curl -fsSL $registry/latest | jq -er .version}
+
+if(! ~ $#current 1 || ! ~ $#latest 1) {
+  echo 'rea: cannot determine the current or latest version' >[1=2]
+  exit 1
+}
+
+if(~ $current $latest) {
+  echo 'rea: current ('$current')'
+  exit 0
+}
+
+url=$registry/-/rea-agents-$latest.tgz
+hash=`{nix store prefetch-file --json $url | jq -er .hash}
+src=`{nix store prefetch-file --json --expected-hash $hash $url | jq -er .storePath}
+work=`{mktemp -d}
+tar -xzOf $src package/package.json | jq 'del(.devDependencies)' > $work/package.json
+package_dir=`{pwd}
+cd $work
+npm install --package-lock-only --ignore-scripts --omit=dev
+cd $package_dir
+deps_hash=`{nix run 'nixpkgs#prefetch-npm-deps' -- $work/package-lock.json}
+
+if(! ~ $#hash 1 || ! ~ $#deps_hash 1) {
+  echo 'rea: cannot determine the archive or dependency hash' >[1=2]
+  exit 1
+}
+
+# Replace the pins only after both downloads succeed.
+perl -0pi -e 'BEGIN { ($version, $hash, $deps) = splice @ARGV, 0, 3 }
+  s/version = "[^"]+"/version = "$version"/;
+  s/(?<!\w)hash = "[^"]+"/hash = "$hash"/;
+  s/npmDepsHash = "[^"]+"/npmDepsHash = "$deps"/;' \
+  $latest $hash $deps_hash $file
+cp $work/package-lock.json package-lock.json
+rm $work/package.json $work/package-lock.json
+rmdir $work
+
+echo 'rea: '$current' -> '$latest

@@ -8,6 +8,7 @@ update:V:
 	./pkgs/mcp-victorialogs/update.rc &
 	./pkgs/mcp-victoriatraces/update.rc &
 	./pkgs/rcsh-language-server/update.rc &
+	./pkgs/rea/update.rc &
 	./pkgs/rust-glancer/update.rc &
 	./pkgs/tree-sitter-mk/update.rc &
 	./pkgs/tree-sitter-rcsh/update.rc &

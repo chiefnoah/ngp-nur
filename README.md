@@ -15,6 +15,7 @@ This repository currently exports:
 - `janet-lsp`
 - `memphis98-icon-theme`
 - `opencode-v2`
+- `rea`
 - `retro-5-classic98-openbox-theme`
 - `windows-classic-theme`
 - `windows98-lxqt-theme`
@@ -37,6 +38,47 @@ environment.systemPackages = [
   pkgs.nur.repos.chiefnoah.rcsh-language-server
 ];
 ```
+
+### REA
+
+The `rea` package provides the `rea` and `rea-agents` commands, the stdio MCP
+server, and the bundled skill. It pins the npm release and runtime dependencies.
+
+```console
+nix run github:chiefnoah/ngp-nur#rea -- --help
+```
+
+REA uses environment variables and client-specific MCP configuration, not a
+standalone configuration file. No separate Home Manager module is necessary.
+Use the existing OpenCode module:
+
+```nix
+{ inputs, pkgs, ... }:
+let
+  rea = inputs.ngp-nur.packages.${pkgs.stdenv.hostPlatform.system}.rea;
+in
+{
+  home.packages = [ rea ];
+  programs.opencode = {
+    enable = true;
+    settings.mcp.rea = {
+      type = "local";
+      command = [ "${rea}/bin/rea" "mcp" ];
+      enabled = true;
+    };
+  };
+}
+```
+
+For other MCP clients, set the command to `${rea}/bin/rea` and the arguments
+to `[ "mcp" ]`. Pass provider environment variables through that client.
+For an existing Ghidra installation, set `GHIDRA_INSTALL_DIR` and `JAVA_HOME`.
+
+The package does not install analysis providers or change agent configuration.
+Static JavaScript analysis needs no provider. Native analysis requires a separate
+Hopper, Ghidra, or IDA installation. Use Nix to update the package, not `rea update`.
+Avoid `rea setup` for Home Manager-managed client files because it edits those files
+and registers an npm command instead of the Nix executable.
 
 ## NixOS Modules
 
