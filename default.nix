@@ -39,6 +39,7 @@
   windows98-lxqt-theme = pkgs.callPackage ./pkgs/windows98-lxqt-theme { };
   nixpkgs-search = pkgs.callPackage ./pkgs/nixpkgs-search { };
   opencode-v2 = pkgs.callPackage ./pkgs/opencode-v2 { };
+  provenance = pkgs.callPackage ./pkgs/provenance { };
   rcsh-language-server = pkgs.callPackage ./pkgs/rcsh-language-server { };
   rea = pkgs.callPackage ./pkgs/rea { };
   rust-glancer = pkgs.callPackage ./pkgs/rust-glancer { };

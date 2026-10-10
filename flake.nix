@@ -63,6 +63,7 @@
         }
         // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
           dir2opds = nixpkgs.legacyPackages.x86_64-linux.callPackage ./tests/dir2opds.nix { };
+          provenance = nixpkgs.legacyPackages.x86_64-linux.callPackage ./tests/provenance.nix { };
         }
       );
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);

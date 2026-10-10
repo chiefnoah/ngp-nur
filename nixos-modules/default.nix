@@ -5,4 +5,5 @@
   koreader-sync-server = ./koreader-sync-server.nix;
   macos9-platinum-theme = ./macos9-platinum-theme.nix;
   opencode-v2 = ./opencode-v2.nix;
+  provenance = ./provenance.nix;
 }

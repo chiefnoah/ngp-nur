@@ -1,0 +1,39 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+for(tool in git jq nix date mv awk) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+file=source.json
+url=`{jq -r .url $file}
+current=`{jq -r .rev $file}
+latest=`{git ls-remote $url HEAD | awk '{print $1}'}
+if(! ~ $#latest 1 || ~ $latest '') {
+  echo 'provenance: cannot determine the upstream commit' >[1=2]
+  exit 1
+}
+if(~ $current $latest) {
+  echo 'provenance: current ('$current')'
+  exit 0
+}
+
+# Share the archive pin between the package and module imports.
+prefetch=`{nix store prefetch-file --unpack --json $url^/archive/^$latest^.tar.gz}
+hash=`{echo $prefetch | jq -r .hash}
+source=`{echo $prefetch | jq -r .storePath}
+version=`{awk '$1 == "version" { gsub(/[";]/, "", $3); print $3; exit }' $source/nix/package.nix}
+if(! ~ $#hash 1 || ~ $hash null '' || ! ~ $#version 1) {
+  echo 'provenance: cannot determine the source hash or version' >[1=2]
+  exit 1
+}
+version=$version^-unstable-^`{date -u +%F}
+jq --arg rev $latest --arg hash $hash --arg version $version \
+  '.rev = $rev | .hash = $hash | .version = $version' $file > $file^.tmp
+mv $file^.tmp $file
+echo 'provenance: '$current' -> '$latest
