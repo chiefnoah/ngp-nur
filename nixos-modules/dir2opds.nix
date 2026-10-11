@@ -283,7 +283,7 @@ in
 
     users.users.dir2opds = lib.mkIf (cfg.user == "dir2opds") {
       isSystemUser = true;
-      group = cfg.group;
+      inherit (cfg) group;
       description = "dir2opds service user";
     };
     users.groups.dir2opds = lib.mkIf (cfg.group == "dir2opds") { };

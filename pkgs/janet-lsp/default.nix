@@ -116,9 +116,7 @@ stdenv.mkDerivation {
   doInstallCheck = true;
 
   installCheckPhase = ''
-    "$out/bin/janet-lsp" --version | grep -F "Janet LSP v${version}-${
-      builtins.substring 0 7 rev
-    }"
+    "$out/bin/janet-lsp" --version | grep -F "Janet LSP v${version}-${builtins.substring 0 7 rev}"
   '';
 
   meta = {

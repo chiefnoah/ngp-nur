@@ -153,7 +153,7 @@ in
 
     users.users.opencode-v2 = lib.mkIf (cfg.user == "opencode-v2") {
       isSystemUser = true;
-      group = cfg.group;
+      inherit (cfg) group;
       home = "/var/lib/opencode-v2";
       description = "OpenCode V2 service user";
     };

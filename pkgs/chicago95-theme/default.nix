@@ -1,4 +1,8 @@
-{ symlinkJoin, chicago95, lib }:
+{
+  symlinkJoin,
+  chicago95,
+  lib,
+}:
 
 symlinkJoin {
   name = "chicago95-theme-${chicago95.version}";

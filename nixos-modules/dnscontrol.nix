@@ -428,43 +428,45 @@ in
       pushCommand
     ];
 
-    systemd.services.dnscontrol-preview = {
-      description = "Preview declarative DNSControl changes";
-      wants = [ "network-online.target" ];
-      after = [ "network-online.target" ];
-      environment.NGP_DNSCONTROL_ENVIRONMENT_LOADED = "1";
-      serviceConfig = serviceConfig // {
-        ExecStart = "${previewCommand}/bin/dnscontrol-preview";
+    systemd = {
+      services.dnscontrol-preview = {
+        description = "Preview declarative DNSControl changes";
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+        environment.NGP_DNSCONTROL_ENVIRONMENT_LOADED = "1";
+        serviceConfig = serviceConfig // {
+          ExecStart = "${previewCommand}/bin/dnscontrol-preview";
+        };
       };
-    };
 
-    systemd.services.dnscontrol-push = mkIf cfg.apply.enable {
-      description = "Apply declarative DNSControl changes";
-      wants = [ "network-online.target" ];
-      after = [ "network-online.target" ];
-      environment.NGP_DNSCONTROL_ENVIRONMENT_LOADED = "1";
-      serviceConfig = serviceConfig // {
-        ExecStart = "${pushCommand}/bin/dnscontrol-push";
+      services.dnscontrol-push = mkIf cfg.apply.enable {
+        description = "Apply declarative DNSControl changes";
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+        environment.NGP_DNSCONTROL_ENVIRONMENT_LOADED = "1";
+        serviceConfig = serviceConfig // {
+          ExecStart = "${pushCommand}/bin/dnscontrol-push";
+        };
       };
-    };
 
-    system.activationScripts.dnscontrol-push = mkIf cfg.apply.onSwitch {
-      deps = optional (config.system.activationScripts ? agenix) "agenix";
-      text = ''
-        if [[ "$NIXOS_ACTION" == switch ]]; then
-          ${pushCommand}/bin/dnscontrol-push
-        fi
-      '';
-    };
+      system.activationScripts.dnscontrol-push = mkIf cfg.apply.onSwitch {
+        deps = optional (config.system.activationScripts ? agenix) "agenix";
+        text = ''
+          if [[ "$NIXOS_ACTION" == switch ]]; then
+            ${pushCommand}/bin/dnscontrol-push
+          fi
+        '';
+      };
 
-    systemd.timers.dnscontrol-push = mkIf (cfg.apply.enable && cfg.apply.schedule != null) {
-      description = "Periodically apply declarative DNSControl changes";
-      wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnCalendar = cfg.apply.schedule;
-        RandomizedDelaySec = cfg.apply.randomizedDelaySec;
-        Persistent = true;
-        Unit = "dnscontrol-push.service";
+      timers.dnscontrol-push = mkIf (cfg.apply.enable && cfg.apply.schedule != null) {
+        description = "Periodically apply declarative DNSControl changes";
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnCalendar = cfg.apply.schedule;
+          RandomizedDelaySec = cfg.apply.randomizedDelaySec;
+          Persistent = true;
+          Unit = "dnscontrol-push.service";
+        };
       };
     };
   };

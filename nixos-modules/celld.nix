@@ -467,7 +467,7 @@ let
           after = [ "network-online.target" ] ++ optional useLocalGarage "celld-garage-buckets.service";
           requires = optional useLocalGarage "celld-garage-buckets.service";
           before = [ "${serviceName}.service" ];
-          environment = instance.environment;
+          inherit (instance) environment;
           serviceConfig = {
             Type = "oneshot";
             ExecStart = getExe deployScript;

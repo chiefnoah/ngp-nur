@@ -6,7 +6,7 @@
   stdenvNoCC,
 }:
 
-stdenvNoCC.mkDerivation (finalAttrs: {
+stdenvNoCC.mkDerivation (_: {
   pname = "koreader-sync-server";
   version = "0-unstable-2026-09-22";
 
