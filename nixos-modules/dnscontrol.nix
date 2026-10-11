@@ -449,15 +449,6 @@ in
         };
       };
 
-      system.activationScripts.dnscontrol-push = mkIf cfg.apply.onSwitch {
-        deps = optional (config.system.activationScripts ? agenix) "agenix";
-        text = ''
-          if [[ "$NIXOS_ACTION" == switch ]]; then
-            ${pushCommand}/bin/dnscontrol-push
-          fi
-        '';
-      };
-
       timers.dnscontrol-push = mkIf (cfg.apply.enable && cfg.apply.schedule != null) {
         description = "Periodically apply declarative DNSControl changes";
         wantedBy = [ "timers.target" ];
@@ -468,6 +459,15 @@ in
           Unit = "dnscontrol-push.service";
         };
       };
+    };
+
+    system.activationScripts.dnscontrol-push = mkIf cfg.apply.onSwitch {
+      deps = optional (config.system.activationScripts ? agenix) "agenix";
+      text = ''
+        if [[ "$NIXOS_ACTION" == switch ]]; then
+          ${pushCommand}/bin/dnscontrol-push
+        fi
+      '';
     };
   };
 }
