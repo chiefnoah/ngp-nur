@@ -24,6 +24,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     inherit (finalAttrs) pname version src;
     pnpm = pnpm_11;
     fetcherVersion = 4;
+    # Fetch all platforms with both stable and unstable nixpkgs.
+    prePnpmInstall = ''
+      export pnpm_config_force_ignores_platform=true
+    '';
     hash = "sha256-2U8d0BKmKaVRyuGlxu5WZjObkHvdU6vS5bxU0mTOh2o=";
   };
 

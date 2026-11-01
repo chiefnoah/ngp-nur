@@ -47,6 +47,7 @@
       checks = forAllSystems (
         system:
         {
+          rcsh-language-server = self.packages.${system}.rcsh-language-server;
           tranquil-pds-vendor = self.packages.${system}.tranquil-pds.cargoDeps;
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
             src = ./.;
