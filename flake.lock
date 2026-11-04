@@ -18,11 +18,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1790238896,
-        "narHash": "sha256-ym4BG18Pu2awiJIehla1Lo9xiB2QYRcCzW3SB74gEBY=",
+        "lastModified": 1793735720,
+        "narHash": "sha256-smoxPKrzAhdGuFd2LLnG4m8P6IrZuW95DVyzjnlab7w=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "34ca302a9572963c02e385c056be37c85ff51b77",
+        "rev": "9d3b8db48266c17be0b5f9c6360c3ecfbac3d1f5",
         "type": "github"
       },
       "original": {
@@ -40,11 +40,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790091288,
-        "narHash": "sha256-2dUuLTiQrf2gUFVLlayDq/hgluitplAMv6Y9bYwQQ+c=",
+        "lastModified": 1793686154,
+        "narHash": "sha256-Zb/0L3soxrkfcrywpfp0J++0WFLB3tzh0Xtx9up+VNc=",
         "owner": "cachix",
         "repo": "git-hooks.nix",
-        "rev": "0d3997c4d3253505f77c9bcea63904bb575da3c5",
+        "rev": "204b6977e00caac19e2313015a598543ca7be150",
         "type": "github"
       },
       "original": {
@@ -67,11 +67,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793174858,
-        "narHash": "sha256-nEm/rDKBRKy3IamhXem2in4G2ubQeLOeNYtye7Gtpj8=",
+        "lastModified": 1793703881,
+        "narHash": "sha256-dqWtGCWeeQYO/L+gRgIwVLQL9h/5VIgHruugoSSjitc=",
         "ref": "refs/heads/main",
-        "rev": "ff92d56e3e2d181370980e2f84428678b2f9f13e",
-        "revCount": 647,
+        "rev": "7f7cf7166d605309b9e5b6fd7990f983f34fed96",
+        "revCount": 653,
         "type": "git",
         "url": "https://tangled.org/tranquil.farm/tranquil-pds"
       },
