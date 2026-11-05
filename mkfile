@@ -4,6 +4,8 @@ update:V:
 	./pkgs/celld/update.rc &
 	./pkgs/dir2opds/update.rc &
 	./pkgs/fx/update.rc &
+	./pkgs/goose/update.rc &
+	./pkgs/goose-lsp/update.rc &
 	./pkgs/janet-lsp/update.rc &
 	./pkgs/mcp-victorialogs/update.rc &
 	./pkgs/mcp-victoriatraces/update.rc &

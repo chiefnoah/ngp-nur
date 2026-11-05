@@ -12,6 +12,9 @@
   tranquil-pds ? pkgs.tranquil-pds,
 }:
 
+let
+  goose = pkgs.callPackage ./pkgs/goose { };
+in
 {
   # The `lib`, `overlays`, `nixosModules`, `homeModules`,
   # `darwinModules` and `flakeModules` names are special
@@ -29,6 +32,8 @@
   koreader-sync-server = pkgs.callPackage ./pkgs/koreader-sync-server { };
   foundryvtt_14_367 = pkgs.callPackage ./pkgs/foundryvtt-14.367 { };
   fx = pkgs.callPackage ./pkgs/fx { };
+  inherit goose;
+  goose-lsp = pkgs.callPackage ./pkgs/goose-lsp { inherit goose; };
   janet-lsp = pkgs.callPackage ./pkgs/janet-lsp { };
   macos9-platinum-theme = pkgs.callPackage ./pkgs/macos9-platinum-theme { };
   memphis98-icon-theme = pkgs.callPackage ./pkgs/memphis98-icon-theme { };

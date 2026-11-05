@@ -1,0 +1,7 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+# Reuse the repository pin logic, but update this package's independent pin.
+exec ../goose/update.rc ../goose-lsp/default.nix

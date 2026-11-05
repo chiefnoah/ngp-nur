@@ -1,0 +1,56 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+file=default.nix
+switch($#*) {
+case 0
+case 1
+  file=$1
+case *
+  echo 'usage: update.rc [package-file]' >[1=2]
+  exit 1
+}
+
+for(tool in awk curl git jq nix perl) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+repo=https://github.com/chiefnoah/goose
+current=`{awk '$1 == "rev" { gsub(/[";]/, "", $3); print $3; exit }' $file}
+current_version=`{awk '$1 == "version" { gsub(/[";]/, "", $3); print $3; exit }' $file}
+current_hash=`{awk '$1 == "hash" { gsub(/[";]/, "", $3); print $3; exit }' $file}
+latest=`{git ls-remote $repo.git HEAD | awk 'NR == 1 { print $1 }'}
+
+if(! ~ $#current 1 || ! ~ $#current_version 1 || ! ~ $#current_hash 1 || ! ~ $#latest 1) {
+  echo 'goose: could not determine the current pin or latest revision' >[1=2]
+  exit 1
+}
+
+if(~ $current $latest) {
+  echo $file': current ('$current_version')'
+  exit 0
+}
+
+date=`{curl -fsSL https://api.github.com/repos/chiefnoah/goose/commits/$latest |
+  jq -er '.commit.committer.date | split("T")[0]'}
+hash=`{nix store prefetch-file --json --unpack $repo/archive/$latest.tar.gz | jq -er .hash}
+
+if(! ~ $#date 1 || ! ~ $#hash 1 || ~ $date null '' || ~ $hash null '') {
+  echo 'goose: could not determine the commit date or source hash' >[1=2]
+  exit 1
+}
+
+version=0-unstable-$date
+echo $file': '$current_version' -> '$version' ('$latest')'
+
+# Replace the three pin values together after each fetch succeeds.
+perl -0pi -e 'BEGIN { ($old_rev, $new_rev, $old_version, $new_version, $old_hash, $new_hash) = splice @ARGV, 0, 6 }
+  s/\Q$old_rev\E/$new_rev/g;
+  s/\Q$old_version\E/$new_version/g;
+  s/\Q$old_hash\E/$new_hash/g;' \
+  $current $latest $current_version $version $current_hash $hash $file
