@@ -45,6 +45,7 @@ in
   nixpkgs-search = pkgs.callPackage ./pkgs/nixpkgs-search { };
   opencode-v2 = pkgs.callPackage ./pkgs/opencode-v2 { };
   provenance = pkgs.callPackage ./pkgs/provenance { };
+  rc2 = pkgs.callPackage ./pkgs/rc2 { inherit goose; };
   rcsh-language-server = pkgs.callPackage ./pkgs/rcsh-language-server { };
   rea = pkgs.callPackage ./pkgs/rea { };
   rust-glancer = pkgs.callPackage ./pkgs/rust-glancer { };

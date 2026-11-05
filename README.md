@@ -15,6 +15,7 @@ This repository currently exports:
 - `janet-lsp`
 - `memphis98-icon-theme`
 - `opencode-v2`
+- `rc2`
 - `rea`
 - `retro-5-classic98-openbox-theme`
 - `windows-classic-theme`
@@ -38,6 +39,21 @@ environment.systemPackages = [
   pkgs.nur.repos.chiefnoah.rcsh-language-server
 ];
 ```
+
+### rc2
+
+`rc2` provides a Plan 9 rc shell with UNIX extensions and structured CLI arguments.
+It uses this repository's `goose` compiler, which also builds `goose-lsp`.
+The current Goose pin matches rc2's compiler pin. rc2 adds no separate Goose or Nixpkgs input.
+
+```console
+nix build .#rc2
+nix run .#rc2 -- -c 'echo hello'
+./pkgs/rc2/update.rc
+node tests/rc2-update.mjs
+```
+
+The package installs Bash, Fish, and Zsh completions. The `mk update` target updates its source pin.
 
 ### REA
 

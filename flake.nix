@@ -62,6 +62,16 @@
             };
           };
         }
+        //
+          nixpkgs.lib.optionalAttrs
+            (builtins.elem system [
+              "aarch64-darwin"
+              "aarch64-linux"
+              "x86_64-linux"
+            ])
+            {
+              rc2 = self.packages.${system}.rc2;
+            }
         // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
           dir2opds = nixpkgs.legacyPackages.x86_64-linux.callPackage ./tests/dir2opds.nix { };
           provenance = nixpkgs.legacyPackages.x86_64-linux.callPackage ./tests/provenance.nix { };

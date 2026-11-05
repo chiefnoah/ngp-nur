@@ -1,0 +1,37 @@
+#!/usr/bin/env rc
+flag e +
+
+cd `{dirname $0}
+
+for(tool in git jq nix awk printf mv) {
+  if(! whatis $tool > /dev/null >[2=1]) {
+    echo 'error: required command not found: '$tool >[1=2]
+    exit 127
+  }
+}
+
+file=source.json
+url=`{jq -er .url $file}
+current=`{jq -er .rev $file}
+latest=`{git ls-remote $url HEAD | awk 'NR == 1 { print $1 }'}
+if(! ~ $#latest 1 || ~ $latest '') {
+  echo 'rc2: cannot determine the upstream commit' >[1=2]
+  exit 1
+}
+if(~ $current $latest) {
+  echo 'rc2: current ('$current')'
+  exit 0
+}
+
+hash=`{nix store prefetch-file --unpack --json $url^/archive/^$latest^.tar.gz | jq -er .hash}
+if(! ~ $#hash 1 || ~ $hash null '') {
+  echo 'rc2: cannot determine the source hash' >[1=2]
+  exit 1
+}
+version=0-unstable-^`{printf %.7s $latest}
+
+# Replace the pin only after the archive fetch succeeds.
+jq --arg rev $latest --arg hash $hash --arg version $version \
+  '. + {rev: $rev, hash: $hash, version: $version}' $file > $file.tmp
+mv $file.tmp $file
+echo 'rc2: '$current' -> '$latest

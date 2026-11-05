@@ -16,5 +16,6 @@ update:V:
 	./pkgs/tree-sitter-rcsh/update.rc &
 	./pkgs/opencode-v2/update.rc &
 	./pkgs/provenance/update.rc &
+	./pkgs/rc2/update.rc &
 	./pkgs/tranquil-pds/update.rc &
 	wait
