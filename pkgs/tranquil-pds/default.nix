@@ -3,7 +3,7 @@
   upstream,
 }:
 let
-  cargoHash = "sha256-Ys71U939KFMKieqA6zrB6XCCOwJnswrT9yzYQ9bUXis=";
+  cargoHash = "sha256-K4wTFCEozwqAoaFFPhN6ZgonPB1FBuFDT9mjNHumHcs=";
 in
 upstream.overrideAttrs (old: {
   inherit cargoHash;
