@@ -3,7 +3,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     tranquil-pds = {
-      url = "git+https://tangled.org/tranquil.farm/tranquil-pds";
+      url = "git+https://tangled.org/tranquil.farm/tranquil-pds?ref=refs/tags/v0.8.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     pre-commit-hooks = {
